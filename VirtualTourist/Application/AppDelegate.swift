@@ -5,6 +5,9 @@
 //  Created by Andre Sanches Bocato on 15/03/19.
 //  Copyright © 2019 Andre Sanches Bocato. All rights reserved.
 //
+// @TODO: properly implement data model entities details and properties
+// @TODO: set up relationship between entities
+
 
 import UIKit
 import CoreData
@@ -32,6 +35,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
 
     func applicationWillEnterForeground(_ application: UIApplication) {
         // Called as part of the transition from the background to the active state; here you can undo many of the changes made on entering the background.
+        self.saveContext()
     }
 
     func applicationDidBecomeActive(_ application: UIApplication) {

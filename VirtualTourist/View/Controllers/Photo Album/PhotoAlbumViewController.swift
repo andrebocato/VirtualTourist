@@ -6,19 +6,33 @@
 //  Copyright © 2019 Andre Sanches Bocato. All rights reserved.
 //
 // @TODO: properly implement collection view delegate and data source methods
+// @TODO: implent mapview methods
 
 import UIKit
+import MapKit
 
 class PhotoAlbumViewController: UIViewController {
     
     // MARK: - IBOutlets
     
-    @IBOutlet private weak var albumView: UICollectionView! {
+    @IBOutlet private weak var albumCollectionView: UICollectionView! {
         didSet {
-            albumView.delegate = self
-            albumView.dataSource = self
+            albumCollectionView.delegate = self
+            albumCollectionView.dataSource = self
         }
     }
+    @IBOutlet private weak var mapView: MKMapView! {
+        didSet {
+            mapView.delegate = self
+        }
+    }
+    
+    // MARK: - IBActions
+    
+    @IBAction private func newCollectionBarButtonItemDidReceiveTouchUpInside(_ sender: Any) {
+        //
+    }
+    
     
 }
 
@@ -33,8 +47,17 @@ extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDa
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AlbumViewCell", for: indexPath) as? AlbumViewCell else { return UICollectionViewCell() }
+        
+        cell.configureCell()
         
         return cell
     }
+    
+}
+
+extension PhotoAlbumViewController: MKMapViewDelegate {
+    
+    // MARK - MKMapView Delegate Methods
     
 }

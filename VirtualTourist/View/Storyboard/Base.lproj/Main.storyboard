@@ -38,6 +38,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
             </objects>
+            <point key="canvasLocation" x="671" y="26"/>
         </scene>
         <!--Photo Album View Controller-->
         <scene sceneID="riP-ef-H7R">
@@ -46,14 +47,66 @@
                     <view key="view" contentMode="scaleToFill" id="spS-FB-rle">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="wsZ-TM-JkJ">
+                                <rect key="frame" x="0.0" y="64" width="375" height="167"/>
+                            </mapView>
+                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tHX-xx-2IZ">
+                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
+                                <items>
+                                    <barButtonItem title="New Collection" width="824.5" id="LQH-BV-pnX">
+                                        <connections>
+                                            <action selector="newCollectionBarButtonItemDidReceiveTouchUpInside:" destination="eY0-rf-cyF" id="Nft-XC-cAe"/>
+                                        </connections>
+                                    </barButtonItem>
+                                </items>
+                            </toolbar>
+                            <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="axa-ya-4zU">
+                                <rect key="frame" x="0.0" y="231" width="375" height="392"/>
+                                <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="gbF-uB-xSq">
+                                    <size key="itemSize" width="50" height="50"/>
+                                    <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                                    <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                                    <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                                </collectionViewFlowLayout>
+                                <cells>
+                                    <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AlbumViewCell" id="fU2-WT-uLV">
+                                        <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+                                        <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
+                                            <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
+                                            <autoresizingMask key="autoresizingMask"/>
+                                        </view>
+                                    </collectionViewCell>
+                                </cells>
+                            </collectionView>
+                        </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
+                        <constraints>
+                            <constraint firstItem="gK4-3g-Byc" firstAttribute="trailing" secondItem="wsZ-TM-JkJ" secondAttribute="trailing" id="6y1-MM-m9n"/>
+                            <constraint firstItem="tHX-xx-2IZ" firstAttribute="centerX" secondItem="gK4-3g-Byc" secondAttribute="centerX" id="8YI-zZ-jiY"/>
+                            <constraint firstItem="axa-ya-4zU" firstAttribute="leading" secondItem="gK4-3g-Byc" secondAttribute="leading" id="NqB-d6-NCJ"/>
+                            <constraint firstItem="axa-ya-4zU" firstAttribute="leading" secondItem="tHX-xx-2IZ" secondAttribute="leading" id="OZo-a2-B3u"/>
+                            <constraint firstItem="tHX-xx-2IZ" firstAttribute="bottom" secondItem="gK4-3g-Byc" secondAttribute="bottom" id="Pfp-gu-2pv"/>
+                            <constraint firstItem="wsZ-TM-JkJ" firstAttribute="top" secondItem="gK4-3g-Byc" secondAttribute="top" id="Ye8-t9-ykG"/>
+                            <constraint firstItem="gK4-3g-Byc" firstAttribute="bottom" secondItem="wsZ-TM-JkJ" secondAttribute="bottom" constant="436" id="ZRr-kH-snb"/>
+                            <constraint firstItem="gK4-3g-Byc" firstAttribute="trailing" secondItem="axa-ya-4zU" secondAttribute="trailing" id="ahO-GE-2ca"/>
+                            <constraint firstItem="tHX-xx-2IZ" firstAttribute="top" secondItem="axa-ya-4zU" secondAttribute="bottom" id="ewu-eI-1jb"/>
+                            <constraint firstItem="axa-ya-4zU" firstAttribute="top" secondItem="wsZ-TM-JkJ" secondAttribute="bottom" id="q4O-vw-t8T"/>
+                            <constraint firstItem="wsZ-TM-JkJ" firstAttribute="leading" secondItem="gK4-3g-Byc" secondAttribute="leading" id="uRc-eo-4f6"/>
+                        </constraints>
                         <viewLayoutGuide key="safeArea" id="gK4-3g-Byc"/>
                     </view>
                     <navigationItem key="navigationItem" id="h3q-4y-XKr"/>
+                    <connections>
+                        <outlet property="albumCollectionView" destination="axa-ya-4zU" id="me1-ah-4Xp"/>
+                        <outlet property="mapView" destination="wsZ-TM-JkJ" id="PQz-L4-hU1"/>
+                    </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AQx-40-IT7" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2167" y="26"/>
+            <point key="canvasLocation" x="2165.5999999999999" y="25.637181409295355"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="LKR-Yq-ob5">
@@ -71,7 +124,7 @@
                 </navigationController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="Xln-Dv-aRl" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="1444" y="26"/>
+            <point key="canvasLocation" x="1433" y="26"/>
         </scene>
     </scenes>
 </document>

@@ -10,5 +10,9 @@
 import UIKit
 
 class AlbumViewCell: UICollectionViewCell {
-        
+    
+    func configureCell() {
+        //
+    }
+    
 }

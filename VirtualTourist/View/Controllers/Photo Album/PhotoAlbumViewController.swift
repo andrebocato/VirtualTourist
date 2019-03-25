@@ -12,6 +12,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class PhotoAlbumViewController: UIViewController {
     
@@ -32,19 +33,27 @@ class PhotoAlbumViewController: UIViewController {
     
     // MARK: - Properties
     
-    var receivedCoordinate: CLLocationCoordinate2D? = nil
+    var mapPin: MapPin!
     var downloadedAlbum: FlickrPhotos? = nil
     
+    var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>!
     var dataController: DataController!
 
     // MARK: - IBActions
     
     @IBAction private func newCollectionBarButtonDidReceiveTouchUpInside(_ sender: Any) {
-        //
+        // @TODO
+        debugPrint("newCollectionBarButton tapped")
     }
     
     // MARK: - Life Cycle
+    
+    override func viewDidLoad() {
+        super.viewDidLoad()
         
+        loadViewData()
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
@@ -59,14 +68,12 @@ class PhotoAlbumViewController: UIViewController {
     
     override func viewDidDisappear(_ animated: Bool) {
         super.viewDidDisappear(animated)
-        
-        clearMapData()
     }
     
     // MARK: - Functions
     
     private func loadMapData() {
-        guard let coordinate = receivedCoordinate else { return }
+        let coordinate = CLLocationCoordinate2D(latitude: mapPin.latitude, longitude: mapPin.longitude)
         mapView.setCenter(coordinate, animated: true)
         
         let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 2000, longitudinalMeters: 2000)
@@ -75,37 +82,28 @@ class PhotoAlbumViewController: UIViewController {
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
+        mapView.selectAnnotation(annotation, animated: true)
         
         downloadAlbum()
-    }
-    
-    private func clearMapData() {
-        receivedCoordinate = nil
     }
     
     // MARK: - Networking Functions
     
     private func downloadAlbum() {
-        guard let coordinate = receivedCoordinate else { return }
-        
-        collectionView.showLoadingView()
+        let coordinate = CLLocationCoordinate2D(latitude: mapPin.latitude, longitude: mapPin.longitude)
         
         FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in
-            guard let response = albumSearchResponse else {
-                debugPrint("request failed. response came as nil")
-                return
-            }
+            guard let response = albumSearchResponse else { return }
             
             self?.downloadedAlbum = response.photos
-            self?.collectionView.hideLoadingView()
+            self?.collectionView.hideEmptyView()
             
             }, onFailure: { [weak self] (error) in
-                self?.collectionView.hideLoadingView()
+                self?.collectionView.hideEmptyView()
                 AlertHelper.showAlert(inController: self!, title: "Request failed", message: "The album could not be downloaded.", rightAction: nil, onCompletion: nil)
-                ErrorHelper.serviceError(error as! ServiceError)
+                ErrorHelper.logServiceError(error as! ServiceError)
                 
         }) { [weak self] in
-            debugPrint("request is over")
             if self?.downloadedAlbum == nil {
                 self?.collectionView.showEmptyView()
             } else {
@@ -114,8 +112,38 @@ class PhotoAlbumViewController: UIViewController {
         }
     }
     
-    private func downloadPhoto() {
-        //
+    // MARK: - Configuration
+    
+    private func configureNSFetchedResultsController(with mapPin: MapPin) {
+        let fetchRequest = NSFetchRequest<PersistedPhoto>(entityName: "PersistedPhoto")
+
+        fetchRequest.predicate = NSPredicate(format: "mapPin == %@", mapPin)
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
+        fetchedResultsController.delegate = self
+        
+        do {
+            try fetchedResultsController.performFetch()
+            
+        } catch let error {
+            debugPrint("fetchedResultsController error:\n\(error)")
+            
+            AlertHelper.showAlert(inController: self, title: "Error", message: "Could not find selected Map Pin on local database.", rightAction: UIAlertAction(title: "Retry", style: .default, handler: { (action) in
+                self.navigationController?.popViewController(animated: true)
+            }))
+        }
+    }
+    
+    private func loadViewData() {
+        self.configureNSFetchedResultsController(with: mapPin)
+        guard let pinPhotos = mapPin.photos, pinPhotos.count > 0 else {
+            self.loadPhotos(completion: {
+                self.updateBottomToolbarCenterButton()
+                self.updateCollectionViewVisibility()
+            })
+            return
+        }
     }
     
 }
@@ -131,13 +159,50 @@ extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDa
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        guard let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AlbumViewCell", for: indexPath) as? AlbumViewCell else { return UICollectionViewCell() }
-        cell.configureCell()
+        let photo = fetchedResultsController.object(at: indexPath)
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AlbumViewCell", for: indexPath) as! AlbumViewCell
+        
+        if let imageData = photo.data {
+            cell.configureWith(imageData)
+        } else {
+            if let url = photo.imageURL() {
+                FlickrService().getPhoto(fromURL: url, onSuccess: { [weak self] (data) in
+                    guard let imageData = data else {
+                        cell.noImage()
+                        return
+                    }
+                    
+                    DispatchQueue.main.async {
+                        self?.dataController.updatePersistedPhotoData(withObjectID: photo.objectID, data: imageData, context: .view, onSuccess: {
+                            cell.configureWith(imageData)
+                            
+                        }, onFailure: { (persistenceError) in
+                            ErrorHelper.logPersistenceError(persistenceError!)
+                            cell.noImage()
+                            
+                        }, onCompletion: nil)
+                    }
+                    
+                }, onFailure: { (serviceError) in
+                    AlertHelper.showAlert(inController: self, title: "Request failed", message: "The photo could not be downloaded.", rightAction: nil, onCompletion: nil)
+                    ErrorHelper.logServiceError(serviceError as! ServiceError)
+                    cell.noImage()
+                    
+                }, onCompletion: {
+                    cell.stopLoading()
+                })
+            }
+        }
+        
         return cell
     }
     
 }
 
 extension PhotoAlbumViewController: MKMapViewDelegate {
+    //
+}
+
+extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     //
 }

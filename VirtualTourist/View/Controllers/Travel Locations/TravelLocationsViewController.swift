@@ -66,8 +66,7 @@ class TravelLocationsViewController: UIViewController {
             segue.destination is PhotoAlbumViewController else { return }
         
         if segue.identifier == "AlbumSegue" {
-            guard let coordinate = currentAnnotation?.coordinate else { return }
-            photoAlbumViewController.receivedCoordinate = coordinate
+            photoAlbumViewController.mapPin = sender as? MapPin
             
             photoAlbumViewController.dataController = dataController
         }

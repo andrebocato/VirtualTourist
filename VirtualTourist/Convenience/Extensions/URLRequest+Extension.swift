@@ -25,7 +25,7 @@ extension URLRequest {
             
             guard let statusCode = serviceResponse.response?.statusCode else { return }
             if !(200...299 ~= statusCode) {
-                ErrorHelper.serviceError(.statusCode)
+                ErrorHelper.logServiceError(.statusCode)
             }
             
             onCompletion(serviceResponse)
@@ -68,7 +68,7 @@ extension URLRequest {
                         let serializedObject = try JSONDecoder().decode(SuccessObjectType.self, from: data)
                         onSuccess(serializedObject, serviceResponse)
                     } catch {
-                        ErrorHelper.serializationError(.failedToSerialize)
+                        ErrorHelper.logSerializationError(.failedToSerialize)
                         onSuccess(nil, serviceResponse)
                     }
                 } else {

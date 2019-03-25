@@ -11,17 +11,20 @@ import CoreData
 
 class DataController {
     
+    // MARK: - Enums
+    
+    enum CoreDataContext {
+        case view
+        case background
+    }
+    
     // MARK: - Initialization
     
     init(modelName: String!) {
         persistentContainer = NSPersistentContainer(name: modelName)
         backgroundContext = persistentContainer.newBackgroundContext()
     }
-    
-    // MARK: - Shared Instance
-    
-    static let shared = DataController(modelName: "VirtualTourist")
-    
+        
     // MARK: - Properties
     
     let persistentContainer: NSPersistentContainer

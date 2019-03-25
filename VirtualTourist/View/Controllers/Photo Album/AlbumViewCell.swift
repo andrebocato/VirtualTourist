@@ -17,10 +17,20 @@ class AlbumViewCell: UICollectionViewCell {
     
     // MARK: - Functions
     
-    func configureCell() {
-//        let urlString = ""
-        
-//        FlickrService().getPhoto(fromURL: urlString, onSuccess: <#T##((Data?) -> Void)##((Data?) -> Void)##(Data?) -> Void#>, onFailure: <#T##((Error?) -> Void)?##((Error?) -> Void)?##(Error?) -> Void#>, onCompletion: <#T##(() -> Void)?##(() -> Void)?##() -> Void#>)
+    func configureWith(_ imageData: Data) {
+        // @TODO
+    }
+    
+    func noImage() {
+        // @TODO
+    }
+    
+    func startLoading() {
+        // @TODO
+    }
+    
+    func stopLoading() {
+        // @TODO
     }
     
 }

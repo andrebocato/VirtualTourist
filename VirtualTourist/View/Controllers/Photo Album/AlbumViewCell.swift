@@ -11,6 +11,12 @@ import UIKit
 
 class AlbumViewCell: UICollectionViewCell {
     
+    // MARK: - IBOutlets
+    
+    @IBOutlet private weak var imageView: UIImageView!
+    
+    // MARK: - Functions
+    
     func configureCell() {
 //        let urlString = ""
         

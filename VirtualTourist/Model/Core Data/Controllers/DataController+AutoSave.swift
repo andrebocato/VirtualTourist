@@ -12,7 +12,7 @@ extension DataController {
     
     // MARK: - Auto Saving Function
     
-    func autoSaveViewContext(interval: TimeInterval = 30) {
+    func autoSaveViewContext(interval: TimeInterval = 300) {
         debugPrint("Auto saving view context")
         
         guard interval > 0 else { return }

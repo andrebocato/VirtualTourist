@@ -7,13 +7,13 @@
 //
 
 import Foundation
+import CoreLocation
 
 class FlickrService {
     
     // MARK: - Functions
     
-    func searchAlbum(inCoordinates latitude: Double? = nil,
-                     longitude: Double? = nil,
+    func searchAlbum(inCoordinate coordinate: CLLocationCoordinate2D? = nil,
                      page: Int = 1,
                      onSuccess succeeded: @escaping ((_ albumResponse: AlbumSearchResponse?) -> Void),
                      onFailure failed: ((Error?) -> Void)? = nil,

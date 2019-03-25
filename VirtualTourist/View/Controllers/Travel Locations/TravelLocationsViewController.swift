@@ -20,13 +20,19 @@ class TravelLocationsViewController: UIViewController {
             mapView.isScrollEnabled = true
         }
     }
-    
     @IBOutlet private weak var longPressGestureRecognizer: UILongPressGestureRecognizer! {
         didSet {
             longPressGestureRecognizer.delegate = self
         }
     }
 
+    // MARK: - Properties
+    
+    private var currentAnnotation: MKAnnotation? = nil
+    private var annotations: [MKAnnotation]?
+    
+    var dataController: DataController!
+    
     // MARK: - IBActions
     
     @IBAction private func longPressGestureRecognizerDidReceiveActionEvent(_ sender: UILongPressGestureRecognizer) {
@@ -41,20 +47,33 @@ class TravelLocationsViewController: UIViewController {
         }
     }
     
-    // MARK: - Properties
+    // MARK: - Life Cycle
     
-    private var currentAnnotation: MKAnnotation? = nil
-    private var annotations: [MKAnnotation]?
+    override func viewDidLoad() {
+        super.viewDidLoad()
+            
+        loadMapData()
+    }
     
-    var dataController: DataController!
-    var fetchedResultsController: NSFetchedResultsController<Annotations>? {
-        didSet {
-            fetchedResultsController?.delegate = self
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+    }
+    
+    // MARK: - Navigation
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        guard let photoAlbumViewController = segue.destination as? PhotoAlbumViewController,
+            segue.destination is PhotoAlbumViewController else { return }
+        
+        if segue.identifier == "AlbumSegue" {
+            guard let coordinate = currentAnnotation?.coordinate else { return }
+            photoAlbumViewController.receivedCoordinate = coordinate
+            
+            photoAlbumViewController.dataController = dataController
         }
     }
     
-    
-    // MARK: - Fuctions
+    // MARK: - Functions
     
     private func loadMapData() {
         // @TODO: fetch map center
@@ -73,8 +92,6 @@ class TravelLocationsViewController: UIViewController {
         }
     }
     
-    // MARK: - Functions
-    
     private func createAnnotation(with coordinate: CLLocationCoordinate2D) {
         let newAnnotation = MKPointAnnotation()
         newAnnotation.coordinate = coordinate
@@ -82,48 +99,6 @@ class TravelLocationsViewController: UIViewController {
         mapView.addAnnotation(newAnnotation)
         annotations?.append(newAnnotation)
         // @TODO: persist annotation
-    }
-    
-    private func setUpFetchResultsController() {
-        let fetchRequest: NSFetchRequest<Annotations> = Annotations.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "descriptor", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "annotations")
-        
-        do {
-            try fetchedResultsController?.performFetch()
-        } catch {
-            ErrorHelper.persistenceError(.failedToFetchData)
-        }
-    }
-    
-    // MARK: - Life Cycle
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-        
-        fetchedResultsController = NSFetchedResultsController<Annotations>()
-        setUpFetchResultsController()
-        
-        loadMapData()
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        fetchedResultsController = nil
-    }
-    
-    // MARK: - Navigation
-    
-    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let photoAlbumViewController = segue.destination as? PhotoAlbumViewController, segue.destination is PhotoAlbumViewController else { return }
-        if segue.identifier == "AlbumSegue" {
-            guard let coordinate = currentAnnotation?.coordinate else { return }
-            photoAlbumViewController.receivedCoordinate = coordinate
-            
-            photoAlbumViewController.dataController = dataController
-        }
     }
     
 }
@@ -157,11 +132,5 @@ extension TravelLocationsViewController: MKMapViewDelegate {
 extension TravelLocationsViewController: UIGestureRecognizerDelegate {
     
     // MARK: - UIGestureRecognizer Delegate Methods
-    
-}
-
-extension TravelLocationsViewController: NSFetchedResultsControllerDelegate {
-    
-    // MARK: - NSFetchedResultsController Delegate Methods
     
 }

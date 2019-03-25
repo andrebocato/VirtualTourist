@@ -19,7 +19,7 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="8Dm-ad-8B9">
-                                <rect key="frame" x="0.0" y="20" width="375" height="647"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="559"/>
                                 <gestureRecognizers/>
                                 <connections>
                                     <outletCollection property="gestureRecognizers" destination="dwt-dB-6V4" appends="YES" id="4eV-Wl-H2h"/>
@@ -48,7 +48,7 @@
                     </connections>
                 </pongPressGestureRecognizer>
             </objects>
-            <point key="canvasLocation" x="1608.8" y="25.637181409295355"/>
+            <point key="canvasLocation" x="1650" y="26"/>
         </scene>
         <!--Photo Album View Controller-->
         <scene sceneID="riP-ef-H7R">
@@ -59,20 +59,10 @@
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
                             <mapView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" mapType="standard" translatesAutoresizingMaskIntoConstraints="NO" id="wsZ-TM-JkJ">
-                                <rect key="frame" x="0.0" y="20" width="375" height="211"/>
+                                <rect key="frame" x="0.0" y="64" width="375" height="123"/>
                             </mapView>
-                            <toolbar opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="tHX-xx-2IZ">
-                                <rect key="frame" x="0.0" y="623" width="375" height="44"/>
-                                <items>
-                                    <barButtonItem title="New Collection" width="824.5" id="LQH-BV-pnX">
-                                        <connections>
-                                            <action selector="newCollectionBarButtonDidReceiveTouchUpInside:" destination="eY0-rf-cyF" id="Nft-XC-cAe"/>
-                                        </connections>
-                                    </barButtonItem>
-                                </items>
-                            </toolbar>
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="axa-ya-4zU">
-                                <rect key="frame" x="0.0" y="231" width="375" height="392"/>
+                                <rect key="frame" x="0.0" y="187" width="375" height="427"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                                 <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="gbF-uB-xSq">
                                     <size key="itemSize" width="125" height="125"/>
@@ -95,23 +85,29 @@
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
                         <constraints>
                             <constraint firstItem="gK4-3g-Byc" firstAttribute="trailing" secondItem="wsZ-TM-JkJ" secondAttribute="trailing" id="6y1-MM-m9n"/>
-                            <constraint firstItem="tHX-xx-2IZ" firstAttribute="centerX" secondItem="gK4-3g-Byc" secondAttribute="centerX" id="8YI-zZ-jiY"/>
+                            <constraint firstItem="gK4-3g-Byc" firstAttribute="bottom" secondItem="axa-ya-4zU" secondAttribute="bottom" constant="9" id="Fc7-K1-I27"/>
                             <constraint firstItem="axa-ya-4zU" firstAttribute="leading" secondItem="gK4-3g-Byc" secondAttribute="leading" id="NqB-d6-NCJ"/>
-                            <constraint firstItem="axa-ya-4zU" firstAttribute="leading" secondItem="tHX-xx-2IZ" secondAttribute="leading" id="OZo-a2-B3u"/>
-                            <constraint firstItem="tHX-xx-2IZ" firstAttribute="bottom" secondItem="gK4-3g-Byc" secondAttribute="bottom" id="Pfp-gu-2pv"/>
                             <constraint firstItem="wsZ-TM-JkJ" firstAttribute="top" secondItem="gK4-3g-Byc" secondAttribute="top" id="Ye8-t9-ykG"/>
                             <constraint firstItem="gK4-3g-Byc" firstAttribute="bottom" secondItem="wsZ-TM-JkJ" secondAttribute="bottom" constant="436" id="ZRr-kH-snb"/>
                             <constraint firstItem="gK4-3g-Byc" firstAttribute="trailing" secondItem="axa-ya-4zU" secondAttribute="trailing" id="ahO-GE-2ca"/>
-                            <constraint firstItem="tHX-xx-2IZ" firstAttribute="top" secondItem="axa-ya-4zU" secondAttribute="bottom" id="ewu-eI-1jb"/>
                             <constraint firstItem="axa-ya-4zU" firstAttribute="top" secondItem="wsZ-TM-JkJ" secondAttribute="bottom" id="q4O-vw-t8T"/>
                             <constraint firstItem="wsZ-TM-JkJ" firstAttribute="leading" secondItem="gK4-3g-Byc" secondAttribute="leading" id="uRc-eo-4f6"/>
                         </constraints>
                         <viewLayoutGuide key="safeArea" id="gK4-3g-Byc"/>
                     </view>
+                    <toolbarItems>
+                        <barButtonItem title="New Collection" width="412.5" id="k7K-Cq-XZK">
+                            <connections>
+                                <action selector="newCollectionBarButtonDidReceiveTouchUpInside:" destination="eY0-rf-cyF" id="Nes-Lw-1ou"/>
+                            </connections>
+                        </barButtonItem>
+                    </toolbarItems>
                     <navigationItem key="navigationItem" id="h3q-4y-XKr"/>
+                    <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
-                        <outlet property="albumCollectionView" destination="axa-ya-4zU" id="me1-ah-4Xp"/>
+                        <outlet property="collectionView" destination="axa-ya-4zU" id="me1-ah-4Xp"/>
                         <outlet property="mapView" destination="wsZ-TM-JkJ" id="PQz-L4-hU1"/>
+                        <outlet property="newCollectionBarButton" destination="k7K-Cq-XZK" id="VHf-Yf-iZT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AQx-40-IT7" userLabel="First Responder" sceneMemberID="firstResponder"/>
@@ -121,13 +117,15 @@
         <!--Navigation Controller-->
         <scene sceneID="9hC-CR-iTH">
             <objects>
-                <navigationController automaticallyAdjustsScrollViewInsets="NO" navigationBarHidden="YES" id="Phx-2l-11p" sceneMemberID="viewController">
+                <navigationController automaticallyAdjustsScrollViewInsets="NO" toolbarHidden="NO" id="Phx-2l-11p" sceneMemberID="viewController">
                     <toolbarItems/>
                     <navigationBar key="navigationBar" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="RZG-7a-6Ex">
+                        <rect key="frame" x="0.0" y="20" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </navigationBar>
                     <nil name="viewControllers"/>
                     <toolbar key="toolbar" opaque="NO" clearsContextBeforeDrawing="NO" contentMode="scaleToFill" insetsLayoutMarginsFromSafeArea="NO" id="FUY-QM-gAh">
+                        <rect key="frame" x="0.0" y="623" width="375" height="44"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </toolbar>
                     <connections>

@@ -17,65 +17,107 @@ class PhotoAlbumViewController: UIViewController {
     
     // MARK: - IBOutlets
     
-    @IBOutlet private weak var albumCollectionView: UICollectionView! {
+    @IBOutlet private weak var collectionView: UICollectionView! {
         didSet {
-            albumCollectionView.delegate = self
-            albumCollectionView.dataSource = self
+            collectionView.delegate = self
+            collectionView.dataSource = self
         }
     }
-    @IBOutlet weak var mapView: MKMapView! {
+    @IBOutlet private weak var mapView: MKMapView! {
         didSet {
             mapView.delegate = self
-            mapView.isZoomEnabled = true
-            mapView.isScrollEnabled = true
         }
     }
+    @IBOutlet private weak var newCollectionBarButton: UIBarButtonItem!
     
     // MARK: - Properties
     
-    var receivedCoordinate = CLLocationCoordinate2D()
+    var receivedCoordinate: CLLocationCoordinate2D? = nil
+    var downloadedAlbum: FlickrPhotos? = nil
     
     var dataController: DataController!
-    var fetchedResultsController: NSFetchedResultsController<Annotation>? {
-        didSet {
-            fetchedResultsController?.delegate = self
-        }
-    }
+
     // MARK: - IBActions
     
     @IBAction private func newCollectionBarButtonDidReceiveTouchUpInside(_ sender: Any) {
         //
     }
     
-    // MARK: - Functions
-    
-    private func setUpFetchResultsController() {
-        let fetchRequest: NSFetchRequest<Annotation> = Annotation.fetchRequest()
-        let sortDescriptor = NSSortDescriptor(key: "creationDate", ascending: false)
-        fetchRequest.sortDescriptors = [sortDescriptor]
-        
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "annotation")
-        
-        do {
-            try fetchedResultsController?.performFetch()
-        } catch {
-            ErrorHelper.persistenceError(.failedToFetchData)
-        }
-    }
-    
     // MARK: - Life Cycle
-    
-    override func viewDidLoad() {
-        super.viewDidLoad()
-    
-        navigationController?.setNavigationBarHidden(false, animated: true)
-    }
-    
+        
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
-        mapView.setCenter(receivedCoordinate, animated: true)
+        loadMapData()
+        
+        if downloadedAlbum == nil {
+            self.collectionView.showEmptyView()
+        } else {
+            self.collectionView.hideEmptyView()
+        }
     }
+    
+    override func viewDidDisappear(_ animated: Bool) {
+        super.viewDidDisappear(animated)
+        
+        clearMapData()
+    }
+    
+    // MARK: - Functions
+    
+    private func loadMapData() {
+        guard let coordinate = receivedCoordinate else { return }
+        mapView.setCenter(coordinate, animated: true)
+        
+        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 2000, longitudinalMeters: 2000)
+        mapView.setRegion(region, animated: true)
+        
+        let annotation = MKPointAnnotation()
+        annotation.coordinate = coordinate
+        mapView.addAnnotation(annotation)
+        
+        downloadAlbum()
+    }
+    
+    private func clearMapData() {
+        receivedCoordinate = nil
+    }
+    
+    // MARK: - Networking Functions
+    
+    private func downloadAlbum() {
+        guard let coordinate = receivedCoordinate else { return }
+        
+        collectionView.showLoadingView()
+        
+        FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in
+            guard let response = albumSearchResponse else {
+                debugPrint("request failed. response came as nil")
+                return
+            }
+            
+            self?.downloadedAlbum = response.photos
+            self?.collectionView.hideLoadingView()
+            
+            }, onFailure: { [weak self] (error) in
+                self?.collectionView.hideLoadingView()
+                AlertHelper.showAlert(inController: self!, title: "Request failed", message: "The album could not be downloaded.", rightAction: nil, onCompletion: nil)
+                ErrorHelper.serviceError(error as! ServiceError)
+                
+        }) { [weak self] in
+            debugPrint("request is over")
+            if self?.downloadedAlbum == nil {
+                self?.collectionView.showEmptyView()
+            } else {
+                self?.collectionView.hideEmptyView()
+            }
+        }
+    }
+    
+    private func downloadPhoto() {
+        //
+    }
+    
 }
 
 // MARK: - Extensions
@@ -97,13 +139,5 @@ extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDa
 }
 
 extension PhotoAlbumViewController: MKMapViewDelegate {
-    
-    // MARK - MKMapView Delegate Methods
-    
-}
-
-extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
-    
-    // MARK: - NSFetchedResultsController Delegate Methods
-    
+    //
 }

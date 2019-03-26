@@ -10,6 +10,7 @@ import Foundation
 
 extension URLRequest {
     
+    @discardableResult
     private func dispatchRequest(onCompletion: @escaping (ServiceResponse) -> Void) -> URLSessionDataTask {
         
         let task = URLSession.shared.dataTask(with: self) { (data, response, error) in
@@ -59,7 +60,7 @@ extension URLRequest {
                                                    onFailure: @escaping (ServiceResponse) -> Void,
                                                    onCompletion: @escaping () -> Void) {
         
-        _ = dispatchRequest(onCompletion: { (serviceResponse) in
+        dispatchRequest(onCompletion: { (serviceResponse) in
             if serviceResponse.errorResponse != nil {
                 onFailure(serviceResponse)
             } else {

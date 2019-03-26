@@ -51,7 +51,7 @@ class PhotoAlbumViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        loadViewData()
+        configureNSFetchedResultsController(with: mapPin)
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -132,17 +132,6 @@ class PhotoAlbumViewController: UIViewController {
             AlertHelper.showAlert(inController: self, title: "Error", message: "Could not find selected Map Pin on local database.", rightAction: UIAlertAction(title: "Retry", style: .default, handler: { (action) in
                 self.navigationController?.popViewController(animated: true)
             }))
-        }
-    }
-    
-    private func loadViewData() {
-        self.configureNSFetchedResultsController(with: mapPin)
-        guard let pinPhotos = mapPin.photos, pinPhotos.count > 0 else {
-            self.loadPhotos(completion: {
-                self.updateBottomToolbarCenterButton()
-                self.updateCollectionViewVisibility()
-            })
-            return
         }
     }
     

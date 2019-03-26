@@ -37,6 +37,8 @@ class FlickrService {
         }) {
             completed?()
         }
+
+        
     }
     
     func getPhoto(fromURL url: String,

@@ -425,13 +425,16 @@
 				TargetAttributes = {
 					6594B002223C1FEF00FA2DC2 = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 					};
 					6594B019223C200600FA2DC2 = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 						TestTargetID = 6594B002223C1FEF00FA2DC2;
 					};
 					6594B024223C200700FA2DC2 = {
 						CreatedOnToolsVersion = 10.1;
+						LastSwiftMigration = 1020;
 						TestTargetID = 6594B002223C1FEF00FA2DC2;
 					};
 				};
@@ -695,9 +698,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.bocato.VirtualTourist-dev";
+				PRODUCT_BUNDLE_IDENTIFIER = com.bocato.VirtualTourist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
@@ -713,9 +716,9 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				PRODUCT_BUNDLE_IDENTIFIER = "com.bocato.VirtualTourist-dev";
+				PRODUCT_BUNDLE_IDENTIFIER = com.bocato.VirtualTourist;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Release;
@@ -726,7 +729,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = Q6D8LQAG8B;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VirtualTouristTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -735,7 +738,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bocato.VirtualTouristTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VirtualTourist.app/VirtualTourist";
 			};
@@ -747,7 +750,7 @@
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				BUNDLE_LOADER = "$(TEST_HOST)";
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = Q6D8LQAG8B;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VirtualTouristTests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -756,7 +759,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bocato.VirtualTouristTests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/VirtualTourist.app/VirtualTourist";
 			};
@@ -767,7 +770,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = Q6D8LQAG8B;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VirtualTouristUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -776,7 +779,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bocato.VirtualTouristUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = VirtualTourist;
 			};
@@ -787,7 +790,7 @@
 			buildSettings = {
 				ALWAYS_EMBED_SWIFT_STANDARD_LIBRARIES = YES;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = Q6D8LQAG8B;
+				DEVELOPMENT_TEAM = "";
 				INFOPLIST_FILE = VirtualTouristUITests/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -796,7 +799,7 @@
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = com.bocato.VirtualTouristUITests;
 				PRODUCT_NAME = "$(TARGET_NAME)";
-				SWIFT_VERSION = 4.2;
+				SWIFT_VERSION = 5.0;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_TARGET_NAME = VirtualTourist;
 			};

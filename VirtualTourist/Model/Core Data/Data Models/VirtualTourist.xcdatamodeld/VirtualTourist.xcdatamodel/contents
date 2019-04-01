@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14460.32" systemVersion="18D109" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
+<model type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="14490.98" systemVersion="18D109" minimumToolsVersion="Automatic" sourceLanguage="Swift" userDefinedModelVersionIdentifier="">
     <entity name="MapPin" representedClassName="MapPin" syncable="YES" codeGenerationType="class">
         <attribute name="creationDate" optional="YES" attributeType="Date" usesScalarValueType="NO" syncable="YES"/>
         <attribute name="id" optional="YES" attributeType="String" syncable="YES"/>
@@ -22,7 +22,7 @@
         <relationship name="mapPin" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MapPin" inverseName="photos" inverseEntity="MapPin" syncable="YES"/>
     </entity>
     <elements>
+        <element name="MapPin" positionX="160" positionY="192" width="128" height="120"/>
         <element name="PersistedPhoto" positionX="-18" positionY="27" width="128" height="225"/>
-        <element name="MapPin" positionX="36" positionY="81" width="128" height="120"/>
     </elements>
 </model>

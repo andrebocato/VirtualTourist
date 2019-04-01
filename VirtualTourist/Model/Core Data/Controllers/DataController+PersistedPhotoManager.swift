@@ -11,6 +11,8 @@ import CoreData
 
 extension DataController {
     
+    // MARK: - Functions
+    
     func createPersistedPhoto(from flickrPhoto: FlickrPhoto,
                               for mapPin: MapPin,
                               inContext context: NSManagedObjectContext) -> PersistedPhoto {

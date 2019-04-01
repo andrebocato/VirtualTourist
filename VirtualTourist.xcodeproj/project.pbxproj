@@ -11,6 +11,7 @@
 		146C6A3A2241373A007C9A16 /* ErrorResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 146C6A392241373A007C9A16 /* ErrorResponse.swift */; };
 		146C6A3C22413D66007C9A16 /* URLHelper.swift in Sources */ = {isa = PBXBuildFile; fileRef = 146C6A3B22413D66007C9A16 /* URLHelper.swift */; };
 		146C6A3E2241730C007C9A16 /* UICollectionView+EmptyView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 146C6A3D2241730C007C9A16 /* UICollectionView+EmptyView.swift */; };
+		14EF81A5224C006500A41F77 /* DataController+MapPinManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = 14EF81A4224C006500A41F77 /* DataController+MapPinManager.swift */; };
 		6511543E223C246D0039B61E /* PhotoAlbumViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6511543D223C246D0039B61E /* PhotoAlbumViewController.swift */; };
 		65115447223C316B0039B61E /* AlbumViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65115446223C316B0039B61E /* AlbumViewCell.swift */; };
 		651B34D522494E3900887C87 /* PersistedPhoto+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 651B34D422494E3900887C87 /* PersistedPhoto+Extension.swift */; };
@@ -62,6 +63,7 @@
 		146C6A392241373A007C9A16 /* ErrorResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ErrorResponse.swift; sourceTree = "<group>"; };
 		146C6A3B22413D66007C9A16 /* URLHelper.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = URLHelper.swift; sourceTree = "<group>"; };
 		146C6A3D2241730C007C9A16 /* UICollectionView+EmptyView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "UICollectionView+EmptyView.swift"; sourceTree = "<group>"; };
+		14EF81A4224C006500A41F77 /* DataController+MapPinManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataController+MapPinManager.swift"; sourceTree = "<group>"; };
 		6511543D223C246D0039B61E /* PhotoAlbumViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoAlbumViewController.swift; sourceTree = "<group>"; };
 		65115446223C316B0039B61E /* AlbumViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AlbumViewCell.swift; sourceTree = "<group>"; };
 		651B34D422494E3900887C87 /* PersistedPhoto+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "PersistedPhoto+Extension.swift"; sourceTree = "<group>"; };
@@ -249,6 +251,7 @@
 				657778412242C3790093C78D /* DataController.swift */,
 				65A660C32242DEC800067C2B /* DataController+AutoSave.swift */,
 				651B34DA2249558100887C87 /* DataController+PersistedPhotoManager.swift */,
+				14EF81A4224C006500A41F77 /* DataController+MapPinManager.swift */,
 			);
 			path = Controllers;
 			sourceTree = "<group>";
@@ -501,6 +504,7 @@
 				65115447223C316B0039B61E /* AlbumViewCell.swift in Sources */,
 				651B34D722494E7800887C87 /* FlickrPhotoSize.swift in Sources */,
 				6594B007223C1FEF00FA2DC2 /* AppDelegate.swift in Sources */,
+				14EF81A5224C006500A41F77 /* DataController+MapPinManager.swift in Sources */,
 				657778422242C3790093C78D /* DataController.swift in Sources */,
 				65FFE20422401A1F003E1D1A /* FlickrPhotos.swift in Sources */,
 				146C6A3522411E9E007C9A16 /* ErrorEnums.swift in Sources */,

@@ -28,6 +28,8 @@ class TravelLocationsViewController: UIViewController {
 
     // MARK: - Properties
     
+    private var currentPin = MapPin()
+    
     private var currentAnnotation: MKAnnotation? = nil
     private var annotations: [MKAnnotation]?
     
@@ -41,7 +43,7 @@ class TravelLocationsViewController: UIViewController {
             updatePinForLongPressGesture(sender)
             break
         case .ended:
-            // @TODO: persist map annotation
+            persistCurrentAnnotation()
             break
         default: return
         }
@@ -66,7 +68,7 @@ class TravelLocationsViewController: UIViewController {
             segue.destination is PhotoAlbumViewController else { return }
         
         if segue.identifier == "AlbumSegue" {
-            photoAlbumViewController.mapPin = sender as? MapPin
+            photoAlbumViewController.mapPin = currentPin
             
             photoAlbumViewController.dataController = dataController
         }
@@ -98,6 +100,22 @@ class TravelLocationsViewController: UIViewController {
         mapView.addAnnotation(newAnnotation)
         annotations?.append(newAnnotation)
         // @TODO: persist annotation
+    }
+    
+    private func persistCurrentAnnotation() {
+        guard let coordinate = currentAnnotation?.coordinate else { return }
+        
+        dataController.addMapPin(at: coordinate, context: .view, onSuccess: { (pin) in
+            debugPrint("successfully persisted \(pin)")
+            
+        }, onFailure: { (error) in
+            AlertHelper.showAlert(inController: self, title: "Failed to save", message: "Could not save current annotation")
+            ErrorHelper.logPersistenceError(error!)
+            
+        }, onCompletion: {
+            self.currentAnnotation = nil
+        })
+        
     }
     
 }

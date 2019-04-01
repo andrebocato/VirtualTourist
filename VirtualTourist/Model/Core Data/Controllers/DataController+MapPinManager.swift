@@ -102,7 +102,7 @@ extension DataController {
         }
     }
     
-    func getMapPin(withID id: String,
+    func getMapPin(with id: String,
                    context: CoreDataContext = .view,
                    onSuccess succeeded: @escaping ((_ pin: MapPin?) -> Void),
                    onFailure failed: ((PersistenceError?) -> Void)? = nil,
@@ -137,7 +137,11 @@ extension DataController {
     // MARK: - Helper Functions
     
     func generatePinID(at coordinate: CLLocationCoordinate2D) -> String {
-        return "\(coordinate.latitude)&\(coordinate.longitude)"
+        let id = "\(coordinate.latitude)&\(coordinate.longitude)"
+        
+        debugPrint("successfully generated id = \(id)")
+        
+        return id
     }
     
 }

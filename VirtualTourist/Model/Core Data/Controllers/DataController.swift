@@ -20,7 +20,7 @@ class DataController {
     
     // MARK: - Initialization
     
-    init(modelName: String!) {
+    init(modelName: String) {
         persistentContainer = NSPersistentContainer(name: modelName)
         backgroundContext = persistentContainer.newBackgroundContext()
     }
@@ -55,16 +55,16 @@ class DataController {
         }
     }
     
-    func saveViewContext() {
-        
-        if viewContext.hasChanges {
-            do {
-                try viewContext.save()
-            } catch let error {
-                debugPrint("error: \(error.localizedDescription)")
-            }
-        }
-        
-    }
+//    func saveContext(_ context: NSManagedObjectContext) {
+//
+//        if context.hasChanges {
+//            do {
+//                try context.save()
+//            } catch let error {
+//                debugPrint("error saving context: \(error.localizedDescription)")
+//            }
+//        }
+//
+//    }
     
 }

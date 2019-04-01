@@ -34,8 +34,8 @@ extension DataController {
         return persistedPhoto
     }
     
-    func persistFlickrPhotos(_ flickrPhotos: [FlickrPhoto]!,
-                             mapPin: MapPin!,
+    func persistFlickrPhotos(_ flickrPhotos: [FlickrPhoto],
+                             mapPin: MapPin,
                              context: CoreDataContext = .background,
                              onSuccess succeeded: @escaping ((_ persistedPhotos: [PersistedPhoto]) -> Void),
                              onFailure failed: ((PersistenceError?) -> Void)? = nil,

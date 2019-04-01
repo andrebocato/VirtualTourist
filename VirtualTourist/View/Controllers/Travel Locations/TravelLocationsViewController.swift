@@ -28,7 +28,7 @@ class TravelLocationsViewController: UIViewController {
 
     // MARK: - Properties
     
-    private var currentPin = MapPin()
+    private var currentPin: MapPin?
     
     private var currentAnnotation: MKAnnotation? = nil
     private var annotations: [MKAnnotation]?
@@ -67,8 +67,10 @@ class TravelLocationsViewController: UIViewController {
         guard let photoAlbumViewController = segue.destination as? PhotoAlbumViewController,
             segue.destination is PhotoAlbumViewController else { return }
         
-        if segue.identifier == "AlbumSegue" {
-            photoAlbumViewController.mapPin = currentPin
+        if segue.identifier == "AlbumSegue", let currentPin = currentPin {
+//            let currentCoordinate = CLLocationCoordinate2D(latitude: currentPin.latitude, longitude: currentPin.longitude)
+//            photoAlbumViewController.receivedCoordinate = currentCoordinate
+            photoAlbumViewController.pinID = currentPin.id
             
             photoAlbumViewController.dataController = dataController
         }

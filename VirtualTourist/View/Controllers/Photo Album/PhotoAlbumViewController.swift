@@ -13,6 +13,7 @@
 import UIKit
 import MapKit
 import CoreData
+import CoreLocation
 
 class PhotoAlbumViewController: UIViewController {
     
@@ -33,8 +34,12 @@ class PhotoAlbumViewController: UIViewController {
     
     // MARK: - Properties
     
-    var mapPin: MapPin!
-    var downloadedAlbum: FlickrPhotos? = nil
+    var downloadedAlbum: FlickrPhotos?
+    
+    var mapPin: MapPin?
+    var pinID: String?
+    var photo: PersistedPhoto?
+    var photoID: String?
     
     var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>!
     var dataController: DataController!
@@ -51,7 +56,7 @@ class PhotoAlbumViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        configureNSFetchedResultsController(with: mapPin)
+        fetchMapPin()
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -73,6 +78,7 @@ class PhotoAlbumViewController: UIViewController {
     // MARK: - Functions
     
     private func loadMapData() {
+        guard let mapPin = mapPin else { return }
         let coordinate = CLLocationCoordinate2D(latitude: mapPin.latitude, longitude: mapPin.longitude)
         mapView.setCenter(coordinate, animated: true)
         
@@ -86,10 +92,26 @@ class PhotoAlbumViewController: UIViewController {
         
         downloadAlbum()
     }
+        
+    private func fetchMapPin() {
+        if let id = pinID {
+            dataController.getMapPin(with: id, context: .view, onSuccess: { (responsePin) in
+                guard let mapPin = responsePin else { return }
+                debugPrint("sucessfully fetched MapPin with id = \(id)")
+                self.mapPin = mapPin
+                self.configureNSFetchedResultsController(with: mapPin)
+                
+            }, onFailure: { (error) in
+                ErrorHelper.logPersistenceError(error!)
+                AlertHelper.showAlert(inController: self, title: "No pin to load", message: "Could not fetch MapPin from local database.")
+            }, onCompletion: nil)
+        }
+    }
     
     // MARK: - Networking Functions
     
     private func downloadAlbum() {
+        guard let mapPin = mapPin else { return }
         let coordinate = CLLocationCoordinate2D(latitude: mapPin.latitude, longitude: mapPin.longitude)
         
         FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in
@@ -135,22 +157,9 @@ class PhotoAlbumViewController: UIViewController {
         }
     }
     
-}
-
-// MARK: - Extensions
-
-extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDataSource {
-    
-    // MARK: - UICollectioView Delegate Methods
-    
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
-    }
-    
-    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let photo = fetchedResultsController.object(at: indexPath)
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AlbumViewCell", for: indexPath) as! AlbumViewCell
-        
+    private func configureCell(_ cell: AlbumViewCell,
+                               with photo: PersistedPhoto) {
+       
         if let imageData = photo.data {
             cell.configureWith(imageData)
         } else {
@@ -172,16 +181,36 @@ extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDa
                         }, onCompletion: nil)
                     }
                     
-                }, onFailure: { (serviceError) in
-                    AlertHelper.showAlert(inController: self, title: "Request failed", message: "The photo could not be downloaded.", rightAction: nil, onCompletion: nil)
-                    ErrorHelper.logServiceError(serviceError as! ServiceError)
-                    cell.noImage()
-                    
+                    }, onFailure: { (serviceError) in
+                        AlertHelper.showAlert(inController: self, title: "Request failed", message: "The photo could not be downloaded.", rightAction: nil, onCompletion: nil)
+                        ErrorHelper.logServiceError(serviceError as! ServiceError)
+                        cell.noImage()
+                        
                 }, onCompletion: {
                     cell.stopLoading()
                 })
             }
         }
+    }
+    
+}
+
+// MARK: - Extensions
+
+extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+    
+    // MARK: - UICollectioView Delegate Methods
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return 1
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let photo = fetchedResultsController.object(at: indexPath)
+        let reuseID = "AlbumViewCell"
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! AlbumViewCell
+        
+        configureCell(cell, with: photo)
         
         return cell
     }
@@ -189,9 +218,13 @@ extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDa
 }
 
 extension PhotoAlbumViewController: MKMapViewDelegate {
-    //
+   
+    // MARK: - MKMapViewDelegate Methods
+    
 }
 
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
-    //
+    
+    // MARK: - NSFetchedResultsControllerDelegate Methods
+    
 }

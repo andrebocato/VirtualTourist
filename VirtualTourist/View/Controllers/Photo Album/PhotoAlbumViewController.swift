@@ -5,10 +5,8 @@
 //  Created by Andre Sanches Bocato on 15/03/19.
 //  Copyright © 2019 Andre Sanches Bocato. All rights reserved.
 //
-// @TODO: properly implement collection view delegate and data source methods
-// @TODO: implent mapview methods
-// @TODO: if user taps a pin with no photo album, the api searches for an album on those coordinates. if no images are found, should present a "no images" label
-// @TODO: present emptyview in case of no images
+// @TODO: if mapPin.photos = nil, downloads a flickr album and associates with mapPin
+// @TODO: downloadAlbum() function should not be in the view controller
 
 import UIKit
 import MapKit
@@ -50,7 +48,7 @@ class PhotoAlbumViewController: UIViewController {
     // MARK: - IBActions
     
     @IBAction private func newCollectionBarButtonDidReceiveTouchUpInside(_ sender: Any) {
-        // @TODO
+        // @TODO: replace current ones with new set of images
         debugPrint("newCollectionBarButton tapped")
     }
     
@@ -109,10 +107,14 @@ class PhotoAlbumViewController: UIViewController {
                 
             }, onFailure: { (error) in
                 ErrorHelper.logPersistenceError(error!)
-                AlertHelper.showAlert(inController: self, title: "No pin to load", message: "Could not fetch MapPin from local database.")
+                AlertHelper.showAlert(inController: self, title: "No pin to load", message: "Could not fetch MapPin from local database.", style: .default)
                 
             }, onCompletion: nil)
         }
+    }
+    
+    private func deleteImage() {
+        // @TODO: remove from the album, from collection view booth and from Core Data
     }
     
     // MARK: - Networking Functions
@@ -129,7 +131,7 @@ class PhotoAlbumViewController: UIViewController {
             
             }, onFailure: { [weak self] (error) in
                 self?.collectionView.hideEmptyView()
-                AlertHelper.showAlert(inController: self!, title: "Request failed", message: "The album could not be downloaded.", rightAction: nil, onCompletion: nil)
+                AlertHelper.showAlert(inController: self!, title: "Request failed", message: "The album could not be downloaded.", style: .default, rightAction: nil, onCompletion: nil)
                 ErrorHelper.logServiceError(error as! ServiceError)
                 
         }) { [weak self] in
@@ -158,7 +160,7 @@ class PhotoAlbumViewController: UIViewController {
         } catch let error {
             debugPrint("fetchedResultsController error:\n\(error)")
             
-            AlertHelper.showAlert(inController: self, title: "Error", message: "Could not find selected Map Pin on local database.", rightAction: UIAlertAction(title: "Retry", style: .default, handler: { (action) in
+            AlertHelper.showAlert(inController: self, title: "Error", message: "Could not find selected Map Pin on local database.", style: .default, rightAction: UIAlertAction(title: "Retry", style: .default, handler: { (action) in
                 self.navigationController?.popViewController(animated: true)
             }))
         }
@@ -189,7 +191,7 @@ class PhotoAlbumViewController: UIViewController {
                     }
                     
                     }, onFailure: { (serviceError) in
-                        AlertHelper.showAlert(inController: self, title: "Request failed", message: "The photo could not be downloaded.", rightAction: nil, onCompletion: nil)
+                        AlertHelper.showAlert(inController: self, title: "Request failed", message: "The photo could not be downloaded.", style: .default, rightAction: nil, onCompletion: nil)
                         ErrorHelper.logServiceError(serviceError as! ServiceError)
                         cell.noImage()
                         
@@ -237,12 +239,6 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     // MARK: - NSFetchedResultsControllerDelegate Methods
- 
-//    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-//    }
-
-//    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-//    }
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {

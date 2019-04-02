@@ -20,12 +20,13 @@ class AlertHelper {
     static func showAlert(inController controller: UIViewController,
                           title: String,
                           message: String,
+                          style: UIAlertAction.Style,
                           rightAction: UIAlertAction? = nil,
                           onCompletion: (() -> Void)? = nil) {
         
         let alert = UIAlertController(title: title, message: message, preferredStyle: .alert)
         
-        let okAction = UIAlertAction(title: "OK", style: .default, handler: { (action) in
+        let okAction = UIAlertAction(title: "OK", style: style, handler: { (action) in
             if rightAction == nil {
                 alert.dismiss(animated: true, completion: nil)
             } else {

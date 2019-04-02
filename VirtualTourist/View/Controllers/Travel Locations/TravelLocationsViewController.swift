@@ -5,6 +5,7 @@
 //  Created by Andre Sanches Bocato on 15/03/19.
 //  Copyright © 2019 Andre Sanches Bocato. All rights reserved.
 //
+// @TODO: when the user drops the pin on the map, start downloading the images immediately without waiting for the user to navigate to the collection view.
 
 import UIKit
 import MapKit
@@ -50,6 +51,7 @@ class TravelLocationsViewController: UIViewController {
             break
         case .ended:
             persistCurrentAnnotation()
+            downloadAlbumForCurrentPin()
             break
         default: return
         }
@@ -86,6 +88,7 @@ class TravelLocationsViewController: UIViewController {
     
     private func loadMapData() {
         // @TODO: fetch map center
+        // @TODO: fetch zoom level
         // @TODO: fetch persisted annotations array
     }
     
@@ -118,7 +121,7 @@ class TravelLocationsViewController: UIViewController {
             self.currentPin = pin
             
         }, onFailure: { (error) in
-            AlertHelper.showAlert(inController: self, title: "Failed to save", message: "Could not save current annotation")
+            AlertHelper.showAlert(inController: self, title: "Failed to save", message: "Could not save current annotation", style: .default)
             ErrorHelper.logPersistenceError(error!)
             
         }, onCompletion: {
@@ -126,9 +129,35 @@ class TravelLocationsViewController: UIViewController {
         })
     }
     
-    private func configureNSFetchedResultsController() {
-        //        let fetchRequest = NSFetchRequest<PersistedPhoto>(entityName: "PersistedPhoto")
+    private func downloadAlbumForCurrentPin() {
+        guard let pin = currentPin else { return }
+        let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         
+        FlickrService().searchAlbum(inCoordinate: coordinate, page: randomPage(), onSuccess: { [weak self] (albumSearchResponse) in
+            guard let photos = albumSearchResponse?.photos, let pin = self?.currentPin else { return }
+            self?.addPhotosToMapPin(photos, pin)
+            
+        }, onFailure: { [weak self] (error) in
+            ErrorHelper.logServiceError(error as! ServiceError)
+            AlertHelper.showAlert(inController: self!, title: "Download failed", message: "Failed to download album for current pin coordinate.", style: .default)
+            
+        }, onCompletion: nil)
+    }
+    
+    // refactor: move to set of helper functions
+    private func addPhotosToMapPin(_ photos: FlickrPhotos,
+                                   _ pin: MapPin) {
+        
+        // @TODO: assign downloaded photos with given pin and persist pin and photos data
+    }
+    
+    // refactor: move to set of helper functions
+    private func randomPage() -> Int {
+        // @TODO: generate random page to get images from album
+        return 0
+    }
+    
+    private func configureNSFetchedResultsController() {
         let fetchRequest: NSFetchRequest<MapPin> = MapPin.fetchRequest()
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
@@ -140,7 +169,7 @@ class TravelLocationsViewController: UIViewController {
         } catch let error {
             debugPrint("fetchedResultsController error:\n\(error)")
             
-            AlertHelper.showAlert(inController: self, title: "Error", message: "Could not find selected Map Pin on local database.", rightAction: UIAlertAction(title: "Retry", style: .default, handler: { (action) in
+            AlertHelper.showAlert(inController: self, title: "Error", message: "Could not find selected Map Pin on local database.", style: .default, rightAction: UIAlertAction(title: "Retry", style: .default, handler: { (action) in
                 self.navigationController?.popViewController(animated: true)
             }))
         }
@@ -161,7 +190,7 @@ extension TravelLocationsViewController: MKMapViewDelegate {
         } else {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "pin")
             pinView?.canShowCallout = true
-            pinView?.pinTintColor = .red
+//            pinView?.pinTintColor = .red
         }
         
         return pinView

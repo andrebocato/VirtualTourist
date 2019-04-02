@@ -8,6 +8,7 @@
 
 import UIKit
 import MapKit
+import CoreData
 
 class TravelLocationsViewController: UIViewController {
 
@@ -33,6 +34,11 @@ class TravelLocationsViewController: UIViewController {
     private var currentAnnotation: MKAnnotation? = nil
     private var annotations: [MKAnnotation]?
     
+    var fetchedResultsController: NSFetchedResultsController<MapPin>? {
+        didSet {
+            fetchedResultsController?.delegate = self
+        }
+    }
     var dataController: DataController!
     
     // MARK: - IBActions
@@ -53,7 +59,10 @@ class TravelLocationsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-            
+        
+        fetchedResultsController = NSFetchedResultsController<MapPin>()
+        configureNSFetchedResultsController()
+        
         loadMapData()
     }
     
@@ -67,11 +76,8 @@ class TravelLocationsViewController: UIViewController {
         guard let photoAlbumViewController = segue.destination as? PhotoAlbumViewController,
             segue.destination is PhotoAlbumViewController else { return }
         
-        if segue.identifier == "AlbumSegue", let currentPin = currentPin {
-//            let currentCoordinate = CLLocationCoordinate2D(latitude: currentPin.latitude, longitude: currentPin.longitude)
-//            photoAlbumViewController.receivedCoordinate = currentCoordinate
-            photoAlbumViewController.pinID = currentPin.id
-            
+        if segue.identifier == "AlbumSegue", let pin = currentPin {
+            photoAlbumViewController.mapPin = pin
             photoAlbumViewController.dataController = dataController
         }
     }
@@ -109,6 +115,7 @@ class TravelLocationsViewController: UIViewController {
         
         dataController.addMapPin(at: coordinate, context: .view, onSuccess: { (pin) in
             debugPrint("successfully persisted \(pin)")
+            self.currentPin = pin
             
         }, onFailure: { (error) in
             AlertHelper.showAlert(inController: self, title: "Failed to save", message: "Could not save current annotation")
@@ -117,9 +124,27 @@ class TravelLocationsViewController: UIViewController {
         }, onCompletion: {
             self.currentAnnotation = nil
         })
-        
     }
     
+    private func configureNSFetchedResultsController() {
+        //        let fetchRequest = NSFetchRequest<PersistedPhoto>(entityName: "PersistedPhoto")
+        
+        let fetchRequest: NSFetchRequest<MapPin> = MapPin.fetchRequest()
+        fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
+        
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "mapPin")
+        
+        do {
+            try fetchedResultsController?.performFetch()
+            
+        } catch let error {
+            debugPrint("fetchedResultsController error:\n\(error)")
+            
+            AlertHelper.showAlert(inController: self, title: "Error", message: "Could not find selected Map Pin on local database.", rightAction: UIAlertAction(title: "Retry", style: .default, handler: { (action) in
+                self.navigationController?.popViewController(animated: true)
+            }))
+        }
+    }
 }
 
 // MARK: - Extensions
@@ -144,6 +169,7 @@ extension TravelLocationsViewController: MKMapViewDelegate {
 
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
         performSegue(withIdentifier: "AlbumSegue", sender: self)
+        mapView.deselectAnnotation(view.annotation, animated: true)
     }
     
 }
@@ -152,4 +178,10 @@ extension TravelLocationsViewController: UIGestureRecognizerDelegate {
     
     // MARK: - UIGestureRecognizer Delegate Methods
     
+}
+
+extension TravelLocationsViewController: NSFetchedResultsControllerDelegate {
+
+    // MARK: - NSFetchedResultsControllerDelegate Methods
+
 }

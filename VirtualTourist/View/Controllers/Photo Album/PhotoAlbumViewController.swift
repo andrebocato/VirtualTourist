@@ -37,11 +37,14 @@ class PhotoAlbumViewController: UIViewController {
     var downloadedAlbum: FlickrPhotos?
     
     var mapPin: MapPin?
-    var pinID: String?
     var photo: PersistedPhoto?
     var photoID: String?
     
-    var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>!
+    var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>? {
+        didSet {
+            fetchedResultsController?.delegate = self
+        }
+    }
     var dataController: DataController!
 
     // MARK: - IBActions
@@ -56,7 +59,11 @@ class PhotoAlbumViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
-        fetchMapPin()
+        fetchedResultsController = NSFetchedResultsController<PersistedPhoto>()
+        
+        fetchMapPin(onCompletion: {
+            configureNSFetchedResultsController(with: mapPin!)
+        })
     }
     
     override func viewWillAppear(_ animated: Bool) {
@@ -93,17 +100,17 @@ class PhotoAlbumViewController: UIViewController {
         downloadAlbum()
     }
         
-    private func fetchMapPin() {
-        if let id = pinID {
+    private func fetchMapPin(onCompletion completed: () -> Void) {
+        if let id = mapPin?.id {
             dataController.getMapPin(with: id, context: .view, onSuccess: { (responsePin) in
                 guard let mapPin = responsePin else { return }
                 debugPrint("sucessfully fetched MapPin with id = \(id)")
                 self.mapPin = mapPin
-                self.configureNSFetchedResultsController(with: mapPin)
                 
             }, onFailure: { (error) in
                 ErrorHelper.logPersistenceError(error!)
                 AlertHelper.showAlert(inController: self, title: "No pin to load", message: "Could not fetch MapPin from local database.")
+                
             }, onCompletion: nil)
         }
     }
@@ -137,16 +144,16 @@ class PhotoAlbumViewController: UIViewController {
     // MARK: - Configuration
     
     private func configureNSFetchedResultsController(with mapPin: MapPin) {
-        let fetchRequest = NSFetchRequest<PersistedPhoto>(entityName: "PersistedPhoto")
+//        let fetchRequest = NSFetchRequest<PersistedPhoto>(entityName: "PersistedPhoto")
 
+        let fetchRequest: NSFetchRequest<PersistedPhoto> = PersistedPhoto.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "mapPin == %@", mapPin)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
         fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
-        fetchedResultsController.delegate = self
         
         do {
-            try fetchedResultsController.performFetch()
+            try fetchedResultsController?.performFetch()
             
         } catch let error {
             debugPrint("fetchedResultsController error:\n\(error)")
@@ -202,13 +209,17 @@ extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDa
     // MARK: - UICollectioView Delegate Methods
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return 1
+        guard let numberOfObjects = fetchedResultsController?.sections?[section].numberOfObjects,
+            numberOfObjects > 0 else { return 0 }
+        
+        return numberOfObjects
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
-        let photo = fetchedResultsController.object(at: indexPath)
-        let reuseID = "AlbumViewCell"
-        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: reuseID, for: indexPath) as! AlbumViewCell
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AlbumViewCell", for: indexPath) as! AlbumViewCell
+        guard let photo = fetchedResultsController?.object(at: indexPath) else {
+            return UICollectionViewCell()
+        }
         
         configureCell(cell, with: photo)
         
@@ -226,5 +237,26 @@ extension PhotoAlbumViewController: MKMapViewDelegate {
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     // MARK: - NSFetchedResultsControllerDelegate Methods
+ 
+//    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+//    }
+
+//    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+//    }
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .insert:
+            collectionView.insertItems(at: [newIndexPath!])
+            break
+        case .delete:
+            collectionView.deleteItems(at: [indexPath!])
+            break
+        case .update:
+            collectionView.reloadItems(at: [indexPath!])
+            break
+        default: return
+        }
+    }
     
 }

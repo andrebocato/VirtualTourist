@@ -29,6 +29,7 @@ class Service {
     
     // MARK: - Functions
     
+    /// Performs an HTTP Request using an HTTPMethod, an URL and optional parameters.
     func request(httpMethod: HTTPMethod,
                  url: URL,
                  parameters: [String: Any]? = nil,

@@ -14,6 +14,7 @@ class AlbumViewCell: UICollectionViewCell {
     // MARK: - IBOutlets
     
     @IBOutlet private weak var imageView: UIImageView!
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
     
     // MARK: - Functions
     
@@ -21,7 +22,7 @@ class AlbumViewCell: UICollectionViewCell {
         // @TODO
     }
     
-    func noImage() {
+    func configureWithNoImage() {
         // @TODO
     }
     

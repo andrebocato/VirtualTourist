@@ -166,6 +166,7 @@ class PhotoAlbumViewController: UIViewController {
         }
     }
     
+    // @TODO: move this to AlbumViewCell
     private func configureCell(_ cell: AlbumViewCell,
                                with photo: PersistedPhoto) {
        
@@ -173,9 +174,9 @@ class PhotoAlbumViewController: UIViewController {
             cell.configureWith(imageData)
         } else {
             if let url = photo.imageURL() {
-                FlickrService().getPhoto(fromURL: url, onSuccess: { [weak self] (data) in
+                FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (data) in
                     guard let imageData = data else {
-                        cell.noImage()
+                        cell.configureWithNoImage()
                         return
                     }
                     
@@ -185,7 +186,7 @@ class PhotoAlbumViewController: UIViewController {
                             
                         }, onFailure: { (persistenceError) in
                             ErrorHelper.logPersistenceError(persistenceError!)
-                            cell.noImage()
+                            cell.configureWithNoImage()
                             
                         }, onCompletion: nil)
                     }
@@ -193,7 +194,7 @@ class PhotoAlbumViewController: UIViewController {
                     }, onFailure: { (serviceError) in
                         AlertHelper.showAlert(inController: self, title: "Request failed", message: "The photo could not be downloaded.", style: .default, rightAction: nil, onCompletion: nil)
                         ErrorHelper.logServiceError(serviceError as! ServiceError)
-                        cell.noImage()
+                        cell.configureWithNoImage()
                         
                 }, onCompletion: {
                     cell.stopLoading()
@@ -219,9 +220,7 @@ extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDa
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AlbumViewCell", for: indexPath) as! AlbumViewCell
-        guard let photo = fetchedResultsController?.object(at: indexPath) else {
-            return UICollectionViewCell()
-        }
+        guard let photo = fetchedResultsController?.object(at: indexPath) else { return UICollectionViewCell() }
         
         configureCell(cell, with: photo)
         

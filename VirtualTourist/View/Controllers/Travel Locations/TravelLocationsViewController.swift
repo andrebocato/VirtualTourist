@@ -133,7 +133,7 @@ class TravelLocationsViewController: UIViewController {
         guard let pin = currentPin else { return }
         let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         
-        FlickrService().searchAlbum(inCoordinate: coordinate, page: randomPage(), onSuccess: { [weak self] (albumSearchResponse) in
+        FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in // @TODO: change page number to random page from album response's pages
             guard let photos = albumSearchResponse?.photos, let pin = self?.currentPin else { return }
             self?.addPhotosToMapPin(photos, pin)
             
@@ -148,13 +148,9 @@ class TravelLocationsViewController: UIViewController {
     private func addPhotosToMapPin(_ photos: FlickrPhotos,
                                    _ pin: MapPin) {
         
+//        pin.photos = photos
+//        dataController.mappin
         // @TODO: assign downloaded photos with given pin and persist pin and photos data
-    }
-    
-    // refactor: move to set of helper functions
-    private func randomPage() -> Int {
-        // @TODO: generate random page to get images from album
-        return 0
     }
     
     private func configureNSFetchedResultsController() {

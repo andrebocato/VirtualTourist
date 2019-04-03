@@ -37,7 +37,7 @@ extension URLRequest {
         return task
     }
     
-    /// Use this method when service payload doesn't need to be serialized
+    /// Use this method when service payload doesn't need to be serialized.
     func treatResponse(onSuccess: @escaping (ServiceResponse) -> Void,
                        onFailure: @escaping (ServiceResponse) -> Void,
                        onCompletion: @escaping () -> Void) -> URLSessionDataTask {
@@ -55,7 +55,7 @@ extension URLRequest {
         })
     }
     
-    /// Used this method to serialize service payload
+    /// Used this method to serialize service payload.
     func treatResponse<SuccessObjectType: Codable>(onSuccess: @escaping (SuccessObjectType?, ServiceResponse) -> Void,
                                                    onFailure: @escaping (ServiceResponse) -> Void,
                                                    onCompletion: @escaping () -> Void) {

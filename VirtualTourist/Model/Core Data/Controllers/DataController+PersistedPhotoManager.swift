@@ -13,6 +13,7 @@ extension DataController {
     
     // MARK: - Functions
     
+    /// Creates a PersistedPhoto in Core Data using a FlickrPhoto.
     func createPersistedPhoto(from flickrPhoto: FlickrPhoto,
                               for mapPin: MapPin,
                               inContext context: NSManagedObjectContext) -> PersistedPhoto {
@@ -34,6 +35,7 @@ extension DataController {
         return persistedPhoto
     }
     
+    /// Converts an array of FlickrPhoto´s into an array of PersistedPhoto´s and persists it to Core Data assigning it to a MapPin.
     func persistFlickrPhotos(_ flickrPhotos: [FlickrPhoto],
                              mapPin: MapPin,
                              context: CoreDataContext = .background,
@@ -65,17 +67,13 @@ extension DataController {
         }
     }
     
+    /// Converts a FlickrPhoto into a PersistedPhoto and adds it to a MapPin.
     func addPersistedPhoto(_ flickrPhoto: FlickrPhoto,
                            mapPin: MapPin,
                            context: CoreDataContext = .background,
                            onSuccess succeeded: @escaping ((_ persistedPhoto: PersistedPhoto) -> Void),
                            onFailure failed: ((PersistenceError?) -> Void)? = nil,
                            onCompletion completed: (() -> Void)? = nil) {
-        
-        guard let id = flickrPhoto.id else {
-            failed?(PersistenceError.failedToPersist)
-            return
-        }
         
         let currentContext: NSManagedObjectContext = context == .background ? backgroundContext : viewContext
         
@@ -95,8 +93,14 @@ extension DataController {
             persistedPhoto.isFamily = flickrPhoto.isFamily == 1
             persistedPhoto.mapPin = mapPin
             
+            guard let id = flickrPhoto.id else {
+                failed?(PersistenceError.failedToFind)
+                return
+            }
+            
             do {
                 try currentContext.save()
+                
                 debugPrint("successfully persisted 'PersistedPhoto' with id = \(id)")
                 succeeded(persistedPhoto)
                 
@@ -109,6 +113,7 @@ extension DataController {
         }
     }
     
+    /// Deletes a PersistedPhoto from Core Data using its ID.
     func deletePersistedPhoto(withID id: String,
                               context: CoreDataContext = .background,
                               onSuccess succeeded: @escaping (() -> Void),
@@ -142,8 +147,8 @@ extension DataController {
         }
     }
     
+    /// Deletes an array of PersistedPhoto´s from Core Data.
     func deletePersistedPhotos(_ persistedPhotos: [PersistedPhoto],
-                               mapPin: MapPin,
                                context: CoreDataContext = .background,
                                onSuccess succeeded: @escaping (() -> Void),
                                onFailure failed: ((PersistenceError?) -> Void)? = nil,
@@ -171,6 +176,7 @@ extension DataController {
         }
     }
     
+    /// Fetches a PersistedPhoto from Core Data using its ID.
     func getPersistedPhoto(withID id: String,
                            context: CoreDataContext = .view,
                            onSuccess succeeded: @escaping ((_ photo: PersistedPhoto?) -> Void),
@@ -203,6 +209,7 @@ extension DataController {
         }
     }
     
+    /// Updates a PersistedPhoto's data using its objectID.
     func updatePersistedPhotoData(withObjectID objectID: NSManagedObjectID,
                                   data: Data,
                                   context: CoreDataContext = .background,

@@ -16,7 +16,6 @@ extension UICollectionView {
         noImagesLabel.textColor = .gray
         noImagesLabel.numberOfLines = 1
         noImagesLabel.textAlignment = .center
-//        noImagesLabel.font = UIFont(name: "TrebuchetMS", size: 15)
         noImagesLabel.sizeToFit()
         
         DispatchQueue.main.async {

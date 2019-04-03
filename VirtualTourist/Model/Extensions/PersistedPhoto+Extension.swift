@@ -15,6 +15,7 @@ extension PersistedPhoto {
         creationDate = Date()
     }
     
+    /// Creates an URL to perform an HTTP request for the API using a FlickrPhoto's parameters.
     func imageURL(forSize size: FlickrPhotoSize = .thumbnail) -> String? {
         guard let server = server, let id = id, let secret = secret else {
             return nil

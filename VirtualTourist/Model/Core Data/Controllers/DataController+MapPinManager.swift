@@ -14,6 +14,7 @@ extension DataController {
     
     // MARK: - Functions
     
+    /// Creates a new MapPin in Core Data using its coordinate.
     func addMapPin(at coordinate: CLLocationCoordinate2D,
                    context: CoreDataContext = .background,
                    onSuccess succeeded: @escaping ((_ mapPin: MapPin) -> Void),
@@ -44,6 +45,7 @@ extension DataController {
         }
     }
     
+    /// Deletes a MapPin from Core Data using its coordinate.
     func deletePin(at coordinate: CLLocationCoordinate2D,
                    context: CoreDataContext = .background,
                    onSuccess succeeded: @escaping ((_ mapPin: MapPin) -> Void),
@@ -78,6 +80,7 @@ extension DataController {
         
     }
     
+    /// Fetches an array with all persisted MapPin´s in Core Data.
     func findAllPins(inContext context: CoreDataContext = .background,
                      onSuccess succeeded: @escaping ((_ pins: [MapPin]?) -> Void),
                      onFailure failed: ((PersistenceError?) -> Void)? = nil,
@@ -102,6 +105,7 @@ extension DataController {
         }
     }
     
+    /// Fetches a MapPin from Core Data using an ID.
     func getMapPin(with id: String,
                    context: CoreDataContext = .view,
                    onSuccess succeeded: @escaping ((_ pin: MapPin?) -> Void),
@@ -136,7 +140,7 @@ extension DataController {
     
     // MARK: - Helper Functions
     
-    func generatePinID(at coordinate: CLLocationCoordinate2D) -> String {
+    private func generatePinID(at coordinate: CLLocationCoordinate2D) -> String {
         let id = "\(coordinate.latitude)&\(coordinate.longitude)"
         
         debugPrint("successfully generated id = \(id)")

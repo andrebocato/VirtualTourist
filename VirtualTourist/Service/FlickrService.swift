@@ -11,8 +11,9 @@ import CoreLocation
 
 class FlickrService {
     
-    // MARK: - Functions
+    // MARK: - Networking Functions
     
+    /// Searches for an an album on given coordinate using the FickrAPI.
     func searchAlbum(inCoordinate coordinate: CLLocationCoordinate2D? = nil,
                      page: Int = 1,
                      onSuccess succeeded: @escaping ((_ albumResponse: AlbumSearchResponse?) -> Void),
@@ -41,7 +42,8 @@ class FlickrService {
         
     }
     
-    func getPhoto(fromURL url: String,
+    /// GETs a photo's data from a given URL.
+    func getPhotoData(fromURL url: String,
                   onSuccess succeeded: @escaping ((_ imageData: Data?) -> Void),
                   onFailure failed: ((Error?) -> Void)? = nil,
                   onCompletion completed: (() -> Void)? = nil) {
@@ -58,12 +60,7 @@ class FlickrService {
         
         task.resume()
     }
-}
 
-// MARK: - Extensions
-
-extension FlickrService {
-    
     // MARK: - Helper Functions
     
     private func createUrl(withCoordinates latitude: Double? = nil,

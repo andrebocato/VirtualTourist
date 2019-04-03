@@ -175,13 +175,19 @@ class PhotoAlbumViewController: UIViewController {
     private func configureCell(_ cell: AlbumViewCell,
                                at indexPath: IndexPath) {
         
+        cell.startLoading()
+        
         let index = indexPath.item
         guard let photo = mapPin?.photos?.allObjects[index] as? PersistedPhoto else { return }
         
         if let imageData = photo.data {
             cell.configureWith(imageData)
         } else {
+            debugPrint("Couldn't fetch image data in Core Data... performing request at indexPath \(indexPath)")
+            
             if let url = photo.imageURL() {
+                
+                // service? you should use core data
                 FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (data) in
                     guard let imageData = data else {
                         cell.configureWithNoImage()

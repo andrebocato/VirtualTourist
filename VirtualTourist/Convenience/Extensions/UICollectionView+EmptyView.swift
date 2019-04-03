@@ -10,9 +10,9 @@ import UIKit
 
 extension UICollectionView {
     
-    func showEmptyView() {
+    func showEmptyView(message: String) {
         let noImagesLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
-        noImagesLabel.text = "No images on that location."
+        noImagesLabel.text = message
         noImagesLabel.textColor = .gray
         noImagesLabel.numberOfLines = 1
         noImagesLabel.textAlignment = .center

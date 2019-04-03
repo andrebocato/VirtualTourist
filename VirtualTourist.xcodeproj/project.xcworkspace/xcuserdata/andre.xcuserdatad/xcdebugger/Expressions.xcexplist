@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<VariablesViewState
+   version = "1.0">
+   <ContextStates>
+      <ContextState
+         contextName = "TravelLocationsViewController.persistCurrentAnnotation():TravelLocationsViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "currentAnnotation">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "PhotoAlbumViewController.viewWillAppear(_:):PhotoAlbumViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "downloadedAlbum">
+            </PersistentString>
+         </PersistentStrings>
+      </ContextState>
+      <ContextState
+         contextName = "TravelLocationsViewController.downloadAlbumForCurrentPin():TravelLocationsViewController.swift">
+      </ContextState>
+   </ContextStates>
+</VariablesViewState>

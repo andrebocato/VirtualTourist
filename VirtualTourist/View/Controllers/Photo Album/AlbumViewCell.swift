@@ -13,25 +13,44 @@ class AlbumViewCell: UICollectionViewCell {
     
     // MARK: - IBOutlets
     
-    @IBOutlet private weak var imageView: UIImageView!
-    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var imageView: UIImageView! {
+        didSet {
+            imageView.isHidden = true
+        }
+    }
+    @IBOutlet weak var activityIndicator: UIActivityIndicatorView! {
+        didSet {
+            activityIndicator.isHidden = false
+        }
+    }
+    @IBOutlet weak var textLabel: UILabel! {
+        didSet {
+            textLabel.isHidden = true
+        }
+    }
     
     // MARK: - Functions
     
     func configureWith(_ imageData: Data) {
-        // @TODO
+        imageView.image = UIImage(data: imageData)
     }
     
     func configureWithNoImage() {
-        // @TODO
+        textLabel.text = "No image to display."
     }
     
     func startLoading() {
-        // @TODO
+        imageView.isHidden = true
+
+        activityIndicator.isHidden = false
+        activityIndicator.startAnimating()
     }
     
     func stopLoading() {
-        // @TODO
+        imageView.isHidden = false
+        
+        activityIndicator.isHidden = true
+        activityIndicator.stopAnimating()
     }
     
 }

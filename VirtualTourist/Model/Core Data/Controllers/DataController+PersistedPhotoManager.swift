@@ -36,18 +36,20 @@ extension DataController {
     }
     
     /// Converts an array of FlickrPhoto´s into an array of PersistedPhoto´s and persists it to Core Data assigning it to a MapPin.
-    func persistFlickrPhotos(_ flickrPhotos: [FlickrPhoto],
-                             mapPin: MapPin,
-                             context: CoreDataContext = .background,
-                             onSuccess succeeded: @escaping ((_ persistedPhotos: [PersistedPhoto]) -> Void),
-                             onFailure failed: ((PersistenceError?) -> Void)? = nil,
-                             onCompletion completed: (() -> Void)? = nil) {
+    func convertAndPersist(_ flickrPhotos: [FlickrPhoto],
+                           mapPin: MapPin,
+                           context: CoreDataContext = .background,
+                           onSuccess succeeded: @escaping ((_ persistedPhotos: [PersistedPhoto]) -> Void),
+                           onFailure failed: ((PersistenceError?) -> Void)? = nil,
+                           onCompletion completed: (() -> Void)? = nil) {
         
         let currentContext: NSManagedObjectContext = context == .background ? backgroundContext : viewContext
         
         currentContext.perform {
             
             var persistedPhotos = [PersistedPhoto]()
+            
+            // Converting flickr photos into persisted photos
             for flickrPhoto in flickrPhotos {
                 let persistedPhoto = self.createPersistedPhoto(from: flickrPhoto, for: mapPin, inContext: currentContext)
                 persistedPhotos.append(persistedPhoto)

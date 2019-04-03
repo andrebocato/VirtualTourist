@@ -51,7 +51,6 @@ class TravelLocationsViewController: UIViewController {
             break
         case .ended:
             persistCurrentAnnotation()
-            downloadAlbumForCurrentPin()
             break
         default: return
         }
@@ -118,6 +117,7 @@ class TravelLocationsViewController: UIViewController {
         
         dataController.addMapPin(at: coordinate, context: .view, onSuccess: { (pin) in
             debugPrint("successfully persisted \(pin)")
+            
             self.currentPin = pin
             
         }, onFailure: { (error) in
@@ -126,31 +126,35 @@ class TravelLocationsViewController: UIViewController {
             
         }, onCompletion: {
             self.currentAnnotation = nil
+            self.downloadAlbumForCurrentPin()
         })
     }
     
     private func downloadAlbumForCurrentPin() {
-        guard let pin = currentPin else { return }
+        guard let pin = currentPin else {
+            debugPrint("pin is nil bruh")
+            return
+        }
+        
         let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         
         FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in // @TODO: change page number to random page from album response's pages
-            guard let photos = albumSearchResponse?.photos, let pin = self?.currentPin else { return }
-            self?.addPhotosToMapPin(photos, pin)
+            guard let flickrPhotos = albumSearchResponse?.photos?.photo, let pin = self?.currentPin else { return }
             
-        }, onFailure: { [weak self] (error) in
+            self?.dataController.convertAndPersist(flickrPhotos, mapPin: pin, context: .view, onSuccess: { (persistedPhotoArray) in
+                debugPrint("successfully converted, persisted photos array and assigned to pin (id = \(pin.id!)")
+                
+            }, onFailure: { (error) in
+                ErrorHelper.logPersistenceError(error!)
+                AlertHelper.showAlert(inController: self!, title: "No album", message: "Could not fetch an album for given pin location.", style: .default)
+                
+            }, onCompletion: nil)
+            
+        }, onFailure: { (error) in
             ErrorHelper.logServiceError(error as! ServiceError)
-            AlertHelper.showAlert(inController: self!, title: "Download failed", message: "Failed to download album for current pin coordinate.", style: .default)
+            AlertHelper.showAlert(inController: self, title: "Download failed", message: "Failed to download album for current pin coordinate.", style: .default)
             
         }, onCompletion: nil)
-    }
-    
-    // refactor: move to set of helper functions
-    private func addPhotosToMapPin(_ photos: FlickrPhotos,
-                                   _ pin: MapPin) {
-        
-//        pin.photos = photos
-//        dataController.mappin
-        // @TODO: assign downloaded photos with given pin and persist pin and photos data
     }
     
     private func configureNSFetchedResultsController() {
@@ -186,7 +190,6 @@ extension TravelLocationsViewController: MKMapViewDelegate {
         } else {
             pinView = MKPinAnnotationView(annotation: annotation, reuseIdentifier: "pin")
             pinView?.canShowCallout = true
-//            pinView?.pinTintColor = .red
         }
         
         return pinView

@@ -32,11 +32,11 @@ class PhotoAlbumViewController: UIViewController {
     
     // MARK: - Properties
     
-    var downloadedAlbum: FlickrPhotos?
+    var album: FlickrPhotos?
     
     var mapPin: MapPin?
-    var photo: PersistedPhoto?
-    var photoID: String?
+//    var photo: PersistedPhoto?
+//    var photoID: String?
     
     var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>? {
         didSet {
@@ -59,21 +59,27 @@ class PhotoAlbumViewController: UIViewController {
         
         fetchedResultsController = NSFetchedResultsController<PersistedPhoto>()
         
-        fetchMapPin(onCompletion: {
-            configureNSFetchedResultsController(with: mapPin!)
-        })
+        guard mapPin != nil else {
+            fetchMapPin(onCompletion: {
+                configureNSFetchedResultsController(with: mapPin!)
+            })
+            return
+        }
+        debugPrint("mapPin with id = \(mapPin!.id!) passed successfully by dependency injection")
+        configureNSFetchedResultsController(with: mapPin!)
     }
     
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
         
+        collectionView.reloadData()
         loadMapData()
         
-        if downloadedAlbum == nil {
-            self.collectionView.showEmptyView()
-        } else {
-            self.collectionView.hideEmptyView()
-        }
+//        if album == nil {
+//            self.collectionView.showEmptyView()
+//        } else {
+//            self.collectionView.hideEmptyView()
+//        }
     }
     
     override func viewDidDisappear(_ animated: Bool) {
@@ -94,10 +100,9 @@ class PhotoAlbumViewController: UIViewController {
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
         mapView.selectAnnotation(annotation, animated: true)
-        
-        downloadAlbum()
     }
-        
+    
+    // @TODO: fetch pin upon app lauching if nil
     private func fetchMapPin(onCompletion completed: () -> Void) {
         if let id = mapPin?.id {
             dataController.getMapPin(with: id, context: .view, onSuccess: { (responsePin) in
@@ -119,29 +124,29 @@ class PhotoAlbumViewController: UIViewController {
     
     // MARK: - Networking Functions
     
-    private func downloadAlbum() {
-        guard let mapPin = mapPin else { return }
-        let coordinate = CLLocationCoordinate2D(latitude: mapPin.latitude, longitude: mapPin.longitude)
-        
-        FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in
-            guard let response = albumSearchResponse else { return }
-            
-            self?.downloadedAlbum = response.photos
-            self?.collectionView.hideEmptyView()
-            
-            }, onFailure: { [weak self] (error) in
-                self?.collectionView.hideEmptyView()
-                AlertHelper.showAlert(inController: self!, title: "Request failed", message: "The album could not be downloaded.", style: .default, rightAction: nil, onCompletion: nil)
-                ErrorHelper.logServiceError(error as! ServiceError)
-                
-        }) { [weak self] in
-            if self?.downloadedAlbum == nil {
-                self?.collectionView.showEmptyView()
-            } else {
-                self?.collectionView.hideEmptyView()
-            }
-        }
-    }
+//    private func downloadAlbum() {
+//        guard let mapPin = mapPin else { return }
+//        let coordinate = CLLocationCoordinate2D(latitude: mapPin.latitude, longitude: mapPin.longitude)
+//
+//        FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in
+//            guard let response = albumSearchResponse else { return }
+//
+//            self?.album = response.photos
+//            self?.collectionView.hideEmptyView()
+//
+//            }, onFailure: { [weak self] (error) in
+//                self?.collectionView.hideEmptyView()
+//                AlertHelper.showAlert(inController: self!, title: "Request failed", message: "The album could not be downloaded.", style: .default, rightAction: nil, onCompletion: nil)
+//                ErrorHelper.logServiceError(error as! ServiceError)
+//
+//        }) { [weak self] in
+//            if self?.album == nil {
+//                self?.collectionView.showEmptyView()
+//            } else {
+//                self?.collectionView.hideEmptyView()
+//            }
+//        }
+//    }
     
     // MARK: - Configuration
     
@@ -168,8 +173,11 @@ class PhotoAlbumViewController: UIViewController {
     
     // @TODO: move this to AlbumViewCell
     private func configureCell(_ cell: AlbumViewCell,
-                               with photo: PersistedPhoto) {
-       
+                               at indexPath: IndexPath) {
+        
+        let index = indexPath.item
+        guard let photo = mapPin?.photos?.allObjects[index] as? PersistedPhoto else { return }
+        
         if let imageData = photo.data {
             cell.configureWith(imageData)
         } else {
@@ -179,23 +187,23 @@ class PhotoAlbumViewController: UIViewController {
                         cell.configureWithNoImage()
                         return
                     }
-                    
+
                     DispatchQueue.main.async {
                         self?.dataController.updatePersistedPhotoData(withObjectID: photo.objectID, data: imageData, context: .view, onSuccess: {
                             cell.configureWith(imageData)
-                            
+
                         }, onFailure: { (persistenceError) in
                             ErrorHelper.logPersistenceError(persistenceError!)
                             cell.configureWithNoImage()
-                            
+
                         }, onCompletion: nil)
                     }
-                    
+
                     }, onFailure: { (serviceError) in
                         AlertHelper.showAlert(inController: self, title: "Request failed", message: "The photo could not be downloaded.", style: .default, rightAction: nil, onCompletion: nil)
                         ErrorHelper.logServiceError(serviceError as! ServiceError)
                         cell.configureWithNoImage()
-                        
+
                 }, onCompletion: {
                     cell.stopLoading()
                 })
@@ -212,19 +220,26 @@ extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDa
     // MARK: - UICollectioView Delegate Methods
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let numberOfObjects = fetchedResultsController?.sections?[section].numberOfObjects,
-            numberOfObjects > 0 else { return 0 }
+        guard let numberOfObjects = fetchedResultsController?.sections?[section].numberOfObjects, numberOfObjects > 0 else {
+            collectionView.showEmptyView(message: "No items in section.")
+            return 0
+        }
         
         return numberOfObjects
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "AlbumViewCell", for: indexPath) as! AlbumViewCell
-        guard let photo = fetchedResultsController?.object(at: indexPath) else { return UICollectionViewCell() }
+//        guard let photo = fetchedResultsController?.object(at: indexPath) else { return UICollectionViewCell() }
         
-        configureCell(cell, with: photo)
+        configureCell(cell, at: indexPath)
         
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        // @TODO: delete and replace photos
+        debugPrint("cell item at \(indexPath) tapped")
     }
     
 }

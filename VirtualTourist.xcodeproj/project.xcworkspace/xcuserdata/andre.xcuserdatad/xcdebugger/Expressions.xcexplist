@@ -11,6 +11,9 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
+         contextName = "TravelLocationsViewController.downloadAlbumForCurrentPin():TravelLocationsViewController.swift">
+      </ContextState>
+      <ContextState
          contextName = "PhotoAlbumViewController.viewWillAppear(_:):PhotoAlbumViewController.swift">
          <PersistentStrings>
             <PersistentString
@@ -19,7 +22,12 @@
          </PersistentStrings>
       </ContextState>
       <ContextState
-         contextName = "TravelLocationsViewController.downloadAlbumForCurrentPin():TravelLocationsViewController.swift">
+         contextName = "PhotoAlbumViewController.init(coder:):PhotoAlbumViewController.swift">
+         <PersistentStrings>
+            <PersistentString
+               value = "mapPin">
+            </PersistentString>
+         </PersistentStrings>
       </ContextState>
    </ContextStates>
 </VariablesViewState>

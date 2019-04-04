@@ -33,10 +33,7 @@ class PhotoAlbumViewController: UIViewController {
     // MARK: - Properties
     
     var album: FlickrPhotos?
-    
     var mapPin: MapPin?
-//    var photo: PersistedPhoto?
-//    var photoID: String?
     
     var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>? {
         didSet {
@@ -105,7 +102,7 @@ class PhotoAlbumViewController: UIViewController {
     // @TODO: fetch pin upon app lauching if nil
     private func fetchMapPin(onCompletion completed: () -> Void) {
         if let id = mapPin?.id {
-            dataController.getMapPin(with: id, context: .view, onSuccess: { (responsePin) in
+            dataController.fetchMapPin(with: id, context: .view, onSuccess: { (responsePin) in
                 guard let mapPin = responsePin else { return }
                 debugPrint("sucessfully fetched MapPin with id = \(id)")
                 self.mapPin = mapPin
@@ -171,66 +168,69 @@ class PhotoAlbumViewController: UIViewController {
         }
     }
     
-    // @TODO: move this to AlbumViewCell
+    // @TODO: helper func
+    private func downloadPhoto(from url: String,
+                               for cell: AlbumViewCell,
+                               _ photo: PersistedPhoto) {
+
+        FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (data) in
+            guard let imageData = data else {
+                cell.configureWithNoImage()
+                return
+            }
+            
+//            DispatchQueue.main.async {
+                self?.dataController.updatePersistedPhotoData(withObjectID: photo.objectID, data: imageData, context: .view, onSuccess: {
+                    cell.configureWith(imageData)
+                    
+                }, onFailure: { (persistenceError) in
+                    ErrorHelper.logPersistenceError(persistenceError!)
+                    cell.configureWithNoImage()
+                    
+                }, onCompletion: nil)
+//            }
+            
+            }, onFailure: { (serviceError) in
+                AlertHelper.showAlert(inController: self, title: "Request failed", message: "The photo could not be downloaded.", style: .default, rightAction: nil, onCompletion: nil)
+                ErrorHelper.logServiceError(serviceError as! ServiceError)
+                cell.configureWithNoImage()
+                
+        }, onCompletion: nil)
+    }
+    
     private func configureCell(_ cell: AlbumViewCell,
                                at indexPath: IndexPath) {
         
-        cell.startLoading()
-        
         let index = indexPath.item
-        guard let photo = mapPin?.photos?.allObjects[index] as? PersistedPhoto else { return }
+        guard let photoFromPinAlbum = mapPin?.photos?.allObjects[index] as? PersistedPhoto, let imageData = photoFromPinAlbum.data else { return }
         
-        if let imageData = photo.data {
-            cell.configureWith(imageData)
-        } else {
-            debugPrint("Couldn't fetch image data in Core Data... performing request at indexPath \(indexPath)")
-            
-            if let url = photo.imageURL() {
-                
-                // service? you should use core data
-                FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (data) in
-                    guard let imageData = data else {
-                        cell.configureWithNoImage()
-                        return
-                    }
-
-                    DispatchQueue.main.async {
-                        self?.dataController.updatePersistedPhotoData(withObjectID: photo.objectID, data: imageData, context: .view, onSuccess: {
-                            cell.configureWith(imageData)
-
-                        }, onFailure: { (persistenceError) in
-                            ErrorHelper.logPersistenceError(persistenceError!)
-                            cell.configureWithNoImage()
-
-                        }, onCompletion: nil)
-                    }
-
-                    }, onFailure: { (serviceError) in
-                        AlertHelper.showAlert(inController: self, title: "Request failed", message: "The photo could not be downloaded.", style: .default, rightAction: nil, onCompletion: nil)
-                        ErrorHelper.logServiceError(serviceError as! ServiceError)
-                        cell.configureWithNoImage()
-
-                }, onCompletion: {
-                    cell.stopLoading()
-                })
-            }
-        }
+        cell.configureWith(imageData)
+        debugPrint("cell \(indexPath) configured")
     }
     
 }
 
 // MARK: - Extensions
 
-extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDataSource {
+extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout {
     
     // MARK: - UICollectioView Delegate Methods
     
-    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let numberOfObjects = fetchedResultsController?.sections?[section].numberOfObjects, numberOfObjects > 0 else {
-            collectionView.showEmptyView(message: "No items in section.")
+    func numberOfSections(in collectionView: UICollectionView) -> Int {
+        guard let numberOfSections = fetchedResultsController?.sections?.count, numberOfSections > 0 else {
+            collectionView.showEmptyView(message: "No sections.")
             return 0
         }
-        
+        return numberOfSections
+    }
+    
+    // MARK: - UICollectionView Data Source Methods
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        guard let numberOfObjects = fetchedResultsController?.sections?[section].numberOfObjects, numberOfObjects > 0 else {
+            collectionView.showEmptyView(message: "No objects in section.")
+            return 0
+        }
         return numberOfObjects
     }
     
@@ -247,6 +247,10 @@ extension PhotoAlbumViewController: UICollectionViewDelegate, UICollectionViewDa
         // @TODO: delete and replace photos
         debugPrint("cell item at \(indexPath) tapped")
     }
+    
+    // MARK: - UICollectionViewDelegateFlowLayout Methods
+    
+    //
     
 }
 

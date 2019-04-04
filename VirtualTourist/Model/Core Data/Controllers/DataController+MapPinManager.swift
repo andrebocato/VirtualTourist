@@ -57,7 +57,7 @@ extension DataController {
         
         currentContext.perform {
             
-            self.getMapPin(with: id, context: context, onSuccess: { (pin) in
+            self.fetchMapPin(with: id, context: context, onSuccess: { (pin) in
                 guard let pin = pin else {
                     debugPrint("could not find 'MapPin' with id = \(id)")
                     failed?(PersistenceError.failedToFind)
@@ -81,7 +81,7 @@ extension DataController {
     }
     
     /// Fetches an array with all persisted MapPin´s in Core Data.
-    func findAllPins(inContext context: CoreDataContext = .background,
+    func fetchAllPins(inContext context: CoreDataContext = .background,
                      onSuccess succeeded: @escaping ((_ pins: [MapPin]?) -> Void),
                      onFailure failed: ((PersistenceError?) -> Void)? = nil,
                      onCompletion completed: (() -> Void)? = nil) {
@@ -97,7 +97,7 @@ extension DataController {
                 succeeded(result)
                 
             } catch let error {
-                debugPrint("findAllPins() failed with error:\n\(error)")
+                debugPrint("fetchAllPins() failed with error:\n\(error)")
                 failed?(PersistenceError.failedToFetchData)
             }
             
@@ -106,7 +106,7 @@ extension DataController {
     }
     
     /// Fetches a MapPin from Core Data using an ID.
-    func getMapPin(with id: String,
+    func fetchMapPin(with id: String,
                    context: CoreDataContext = .view,
                    onSuccess succeeded: @escaping ((_ pin: MapPin?) -> Void),
                    onFailure failed: ((PersistenceError?) -> Void)? = nil,
@@ -130,7 +130,7 @@ extension DataController {
                 succeeded(mapPin)
                 
             } catch let error {
-                debugPrint("getMapPin() failed with error:\n\(error)")
+                debugPrint("fetchMapPin() failed with error:\n\(error)")
                 failed?(PersistenceError.failedToFind)
             }
             

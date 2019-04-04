@@ -31,6 +31,7 @@ extension DataController {
         persistedPhoto.isFriend = flickrPhoto.isFriend == 1
         persistedPhoto.isFamily = flickrPhoto.isFamily == 1
         persistedPhoto.mapPin = mapPin
+        // persistedPhoto.data is nil. should contain data
         
         return persistedPhoto
     }
@@ -126,7 +127,7 @@ extension DataController {
         
         currentContext.perform {
             
-            self.getPersistedPhoto(withID: id, context: context, onSuccess: { (photo) in
+            self.fetchPersistedPhoto(withID: id, context: context, onSuccess: { (photo) in
                 
                 guard let photo = photo else {
                     debugPrint("could not find 'PersistedPhoto' with id = \(id)")
@@ -179,7 +180,7 @@ extension DataController {
     }
     
     /// Fetches a PersistedPhoto from Core Data using its ID.
-    func getPersistedPhoto(withID id: String,
+    func fetchPersistedPhoto(withID id: String,
                            context: CoreDataContext = .view,
                            onSuccess succeeded: @escaping ((_ photo: PersistedPhoto?) -> Void),
                            onFailure failed: ((PersistenceError?) -> Void)? = nil,
@@ -203,7 +204,7 @@ extension DataController {
                 succeeded(persistedPhoto)
                 
             } catch let error {
-                debugPrint("getPersistedPhoto() failed with error:\n\(error)")
+                debugPrint("fetchPersistedPhoto() failed with error:\n\(error)")
                 failed?(PersistenceError.failedToFind)
             }
             

@@ -31,6 +31,7 @@ class TravelLocationsViewController: UIViewController {
     // MARK: - Properties
     
     private var currentPin: MapPin?
+    private var pinView: MKPinAnnotationView?
     
     private var currentAnnotation: MKAnnotation? = nil
     private var annotations: [MKAnnotation]?
@@ -119,6 +120,7 @@ class TravelLocationsViewController: UIViewController {
             debugPrint("successfully persisted \(pin)")
             
             self.currentPin = pin
+            self.downloadAlbumForCurrentPin()
             
         }, onFailure: { (error) in
             AlertHelper.showAlert(inController: self, title: "Failed to save", message: "Could not save current annotation", style: .default)
@@ -126,15 +128,17 @@ class TravelLocationsViewController: UIViewController {
             
         }, onCompletion: {
             self.currentAnnotation = nil
-            self.downloadAlbumForCurrentPin()
         })
     }
     
     private func downloadAlbumForCurrentPin() {
         guard let pin = currentPin else {
-            debugPrint("pin is nil bruh")
+            debugPrint("pin is nil")
             return
         }
+        
+        // @TODO: startLoading()
+        self.pinView!.isUserInteractionEnabled = false
         
         let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         
@@ -142,7 +146,13 @@ class TravelLocationsViewController: UIViewController {
             guard let flickrPhotos = albumSearchResponse?.photos?.photo, let pin = self?.currentPin else { return }
             
             self?.dataController.convertAndPersist(flickrPhotos, mapPin: pin, context: .view, onSuccess: { (persistedPhotoArray) in
-                debugPrint("successfully converted, persisted photos array and assigned to pin (id = \(pin.id!)")
+                debugPrint("successfully converted, persisted photos array (flickr -> persisted) and assigned to pin (id = \(pin.id!)")
+                
+                for photo in persistedPhotoArray {
+                    if photo.data == nil {
+                        self?.downloadBackupPhoto(photo)
+                    }
+                }
                 
             }, onFailure: { (error) in
                 ErrorHelper.logPersistenceError(error!)
@@ -154,7 +164,10 @@ class TravelLocationsViewController: UIViewController {
             ErrorHelper.logServiceError(error as! ServiceError)
             AlertHelper.showAlert(inController: self, title: "Download failed", message: "Failed to download album for current pin coordinate.", style: .default)
             
-        }, onCompletion: nil)
+        }, onCompletion: {
+            // @TODO: stopLoading()
+            self.pinView!.isUserInteractionEnabled = true
+        })
     }
     
     private func configureNSFetchedResultsController() {
@@ -174,6 +187,27 @@ class TravelLocationsViewController: UIViewController {
             }))
         }
     }
+    
+    private func downloadBackupPhoto(_ photo: PersistedPhoto) {
+        debugPrint("PersistedPhoto with id = \(photo.objectID) has no data. GETing it from Flickr...")
+        guard let url = photo.imageURL() else { return }
+        FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (imageData) in
+            // @TODO: create [Data]?
+            if let imageData = imageData {
+                self?.dataController.updatePersistedPhotoData(withObjectID: photo.objectID, data: imageData, context: .background, onSuccess: {
+                    debugPrint("sucessfully assigned data to PersistedPhoto with id = (\(photo.objectID))")
+                    
+                }, onFailure: { (persistenceError) in
+                    ErrorHelper.logPersistenceError(persistenceError!)
+                    
+                }, onCompletion: nil)
+            }
+            
+            }, onFailure: { (error) in
+                ErrorHelper.logServiceError(error as! ServiceError)
+                
+        }, onCompletion: nil)
+    }
 }
 
 // MARK: - Extensions
@@ -183,7 +217,7 @@ extension TravelLocationsViewController: MKMapViewDelegate {
     // MARK: - MKMapView Delegate Methods
     
     func mapView(_ mapView: MKMapView, viewFor annotation: MKAnnotation) -> MKAnnotationView? {
-        var pinView = mapView.dequeueReusableAnnotationView(withIdentifier: "pin") as? MKPinAnnotationView
+        pinView = mapView.dequeueReusableAnnotationView(withIdentifier: "pin") as? MKPinAnnotationView
         
         if let pin = pinView {
             pin.annotation = annotation

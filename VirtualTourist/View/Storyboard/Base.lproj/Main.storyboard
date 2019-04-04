@@ -78,6 +78,12 @@
                                             <rect key="frame" x="0.0" y="0.0" width="125" height="125"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
+                                                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Image." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mMq-y5-JnD" userLabel="No Image Label">
+                                                    <rect key="frame" x="23.5" y="52" width="78" height="21"/>
+                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
+                                                    <nil key="textColor"/>
+                                                    <nil key="highlightedColor"/>
+                                                </label>
                                                 <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8RO-TN-iDL">
                                                     <rect key="frame" x="0.0" y="0.0" width="125" height="125"/>
                                                 </imageView>
@@ -91,8 +97,10 @@
                                         <constraints>
                                             <constraint firstAttribute="trailing" secondItem="8RO-TN-iDL" secondAttribute="trailing" id="6QH-3d-Mh7"/>
                                             <constraint firstItem="8RO-TN-iDL" firstAttribute="top" secondItem="fU2-WT-uLV" secondAttribute="top" id="DZI-VK-2F5"/>
+                                            <constraint firstItem="mMq-y5-JnD" firstAttribute="centerY" secondItem="fU2-WT-uLV" secondAttribute="centerY" id="R4i-sG-Bq4"/>
                                             <constraint firstAttribute="bottom" secondItem="8RO-TN-iDL" secondAttribute="bottom" id="ntB-fF-7xO"/>
                                             <constraint firstItem="8RO-TN-iDL" firstAttribute="leading" secondItem="fU2-WT-uLV" secondAttribute="leading" id="qiC-6V-kYb"/>
+                                            <constraint firstItem="mMq-y5-JnD" firstAttribute="centerX" secondItem="fU2-WT-uLV" secondAttribute="centerX" id="rd7-U6-mbY"/>
                                         </constraints>
                                         <connections>
                                             <outlet property="activityIndicator" destination="ex2-8s-P4l" id="K9F-ut-Wok"/>

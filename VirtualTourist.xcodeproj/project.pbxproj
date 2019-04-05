@@ -696,7 +696,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8X682DW69D;
+				DEVELOPMENT_TEAM = Q6D8LQAG8B;
 				INFOPLIST_FILE = VirtualTourist/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
@@ -714,7 +714,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
-				DEVELOPMENT_TEAM = 8X682DW69D;
+				DEVELOPMENT_TEAM = Q6D8LQAG8B;
 				INFOPLIST_FILE = VirtualTourist/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",

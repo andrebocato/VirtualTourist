@@ -67,9 +67,11 @@ class TravelLocationsViewController: UIViewController {
         
         loadMapData()
     }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
+
+    override func viewWillAppear(_ animated: Bool) {
+        super.viewWillAppear(animated)
+        
+        currentPin = nil
     }
     
     // MARK: - Navigation

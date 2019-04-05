@@ -80,7 +80,6 @@ class PhotoAlbumViewController: UIViewController {
         
         album = nil
         mapPin = nil
-        
     }
     
     // MARK: - Functions

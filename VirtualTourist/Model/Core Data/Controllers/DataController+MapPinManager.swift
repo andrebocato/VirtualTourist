@@ -148,4 +148,8 @@ extension DataController {
         return id
     }
     
+    func getIdForPinAtCoordinate(at coordinate: CLLocationCoordinate2D) -> String {
+        return generatePinID(at: coordinate)
+    }
+    
 }

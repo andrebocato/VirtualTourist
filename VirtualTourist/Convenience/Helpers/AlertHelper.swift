@@ -17,7 +17,7 @@ class AlertHelper {
     
     // MARK: - Functions
     
-    static func showAlert(inController controller: UIViewController,
+    static func showAlert(inController controller: UIViewController?,
                           title: String,
                           message: String,
                           style: UIAlertAction.Style,
@@ -46,7 +46,7 @@ class AlertHelper {
         }
         
         DispatchQueue.main.async {
-            controller.present(alert, animated: true, completion: nil)
+            controller?.present(alert, animated: true, completion: nil)
         }
         
     }

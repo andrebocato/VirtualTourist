@@ -33,7 +33,7 @@ class PhotoAlbumViewController: UIViewController {
     // MARK: - Properties
     
     var album: FlickrPhotos?
-    var mapPin: MapPin?
+    var mapPin: MapPin!
     
     var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>? {
         didSet {
@@ -55,13 +55,7 @@ class PhotoAlbumViewController: UIViewController {
         super.viewDidLoad()
         
         fetchedResultsController = NSFetchedResultsController<PersistedPhoto>()
-        
-        guard mapPin != nil else {
-            fetchMapPin(onCompletion: {
-                configureNSFetchedResultsController(with: mapPin!)
-            })
-            return
-        }
+        configureNSFetchedResultsController(with: mapPin!)
         
         debugPrint("mapPin with id = \(mapPin!.id!) passed successfully by dependency injection")
         
@@ -96,22 +90,6 @@ class PhotoAlbumViewController: UIViewController {
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
         mapView.selectAnnotation(annotation, animated: true)
-    }
-    
-    // @TODO: fetch pin upon app lauching if nil
-    private func fetchMapPin(onCompletion completed: () -> Void) {
-        if let id = mapPin?.id {
-            dataController.fetchMapPin(with: id, context: .view, onSuccess: { (responsePin) in
-                guard let mapPin = responsePin else { return }
-                debugPrint("sucessfully fetched MapPin with id = \(id)")
-                self.mapPin = mapPin
-                
-            }, onFailure: { (error) in
-                ErrorHelper.logPersistenceError(error!)
-                AlertHelper.showAlert(inController: self, title: "No pin to load", message: "Could not fetch MapPin from local database.", style: .default)
-                
-            }, onCompletion: nil)
-        }
     }
     
     private func deleteImage() {

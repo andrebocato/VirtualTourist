@@ -15,6 +15,8 @@ class TravelLocationsViewController: UIViewController {
 
     // MARK: - IBOutlets
     
+    var downloadedData = [Data]() // gambs pra ver duplicacao
+    
     @IBOutlet private weak var mapView: MKMapView! {
         didSet {
             mapView.delegate = self
@@ -30,10 +32,9 @@ class TravelLocationsViewController: UIViewController {
 
     // MARK: - Properties
     
-    private var currentPin: MapPin?
     private var pinView: MKPinAnnotationView?
     
-    private var currentAnnotation: MKAnnotation? = nil
+    private var currentAnnotation: MKAnnotation?
     private var annotations: [MKAnnotation]?
     
     var fetchedResultsController: NSFetchedResultsController<MapPin>? {
@@ -47,12 +48,8 @@ class TravelLocationsViewController: UIViewController {
     
     @IBAction private func longPressGestureRecognizerDidReceiveActionEvent(_ sender: UILongPressGestureRecognizer) {
         switch sender.state {
-        case .began:
-            updatePinForLongPressGesture(sender)
-            break
-        case .ended:
-            persistCurrentAnnotation()
-            break
+        case .began: updatePinForLongPressGesture(sender)
+        case .ended: persistCurrentAnnotation()
         default: return
         }
     }
@@ -70,20 +67,27 @@ class TravelLocationsViewController: UIViewController {
 
     override func viewWillAppear(_ animated: Bool) {
         super.viewWillAppear(animated)
-        
-        currentPin = nil
+        navigationController?.navigationBar.isHidden = true
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        navigationController?.navigationBar.isHidden = false
     }
     
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        
         guard let photoAlbumViewController = segue.destination as? PhotoAlbumViewController,
+            let pin = sender as? MapPin,
             segue.destination is PhotoAlbumViewController else { return }
         
-        if segue.identifier == "AlbumSegue", let pin = currentPin {
+        if segue.identifier == "AlbumSegue" {
             photoAlbumViewController.mapPin = pin
-            photoAlbumViewController.dataController = dataController
+            photoAlbumViewController.dataController = self.dataController
         }
+        
     }
     
     // MARK: - Functions
@@ -116,39 +120,34 @@ class TravelLocationsViewController: UIViewController {
     }
     
     private func persistCurrentAnnotation() {
-        guard let coordinate = currentAnnotation?.coordinate else { return }
         
-        dataController.addMapPin(at: coordinate, context: .view, onSuccess: { (pin) in
+        guard let coordinate = currentAnnotation?.coordinate else { return }
+        currentAnnotation = nil
+        
+        dataController.addMapPin(at: coordinate, context: .view, onSuccess: { [weak self] (pin) in
             debugPrint("successfully persisted \(pin)")
             
-            self.currentPin = pin
-            self.downloadAlbumForCurrentPin()
+            self?.downloadAlbumForPin(pin)
             
         }, onFailure: { (error) in
             AlertHelper.showAlert(inController: self, title: "Failed to save", message: "Could not save current annotation", style: .default)
             ErrorHelper.logPersistenceError(error!)
             
-        }, onCompletion: {
-            self.currentAnnotation = nil
         })
     }
     
-    private func downloadAlbumForCurrentPin() {
-        guard let pin = currentPin else {
-            debugPrint("pin is nil")
-            return
-        }
+    private func downloadAlbumForPin(_ pin: MapPin) {
         
         // @TODO: startLoading()
-        self.pinView!.isUserInteractionEnabled = false
+        pinView?.isUserInteractionEnabled = false
         
         let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         
         FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in // @TODO: change page number to random page from album response's pages
-            guard let flickrPhotos = albumSearchResponse?.photos?.photo, let pin = self?.currentPin else { return }
+            guard let flickrPhotos = albumSearchResponse?.photos?.photo else { return }
             
             self?.dataController.convertAndPersist(flickrPhotos, mapPin: pin, context: .view, onSuccess: { (persistedPhotoArray) in
-                debugPrint("successfully converted, persisted photos array (flickr -> persisted) and assigned to pin (id = \(pin.id!)")
+                debugPrint("successfully converted, persisted photos array (flickr -> persisted) and assigned to pin (id = \(pin.id ?? "")")
                 
                 for photo in persistedPhotoArray {
                     if photo.data == nil {
@@ -196,6 +195,14 @@ class TravelLocationsViewController: UIViewController {
         FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (imageData) in
             // @TODO: create [Data]?
             if let imageData = imageData {
+                
+                
+                if self?.downloadedData.contains(imageData) == false {
+                     self?.downloadedData.append(imageData)
+                } else {
+                    debugPrint("Duplicated")
+                }
+                
                 self?.dataController.updatePersistedPhotoData(withObjectID: photo.objectID, data: imageData, context: .background, onSuccess: {
                     debugPrint("sucessfully assigned data to PersistedPhoto with id = (\(photo.objectID))")
                     
@@ -232,8 +239,17 @@ extension TravelLocationsViewController: MKMapViewDelegate {
     }
 
     func mapView(_ mapView: MKMapView, didSelect view: MKAnnotationView) {
-        performSegue(withIdentifier: "AlbumSegue", sender: self)
+        
         mapView.deselectAnnotation(view.annotation, animated: true)
+        guard let selectedAnnotationCordinate = view.annotation?.coordinate else { return }
+        let pinIDForSelectedAnnotation = dataController.getIdForPinAtCoordinate(at: selectedAnnotationCordinate)
+        
+        dataController.fetchMapPin(with: pinIDForSelectedAnnotation, onSuccess: { [weak self] (mapPin) in
+            guard let mapPin = mapPin else { return }
+            self?.performSegue(withIdentifier: "AlbumSegue", sender: mapPin)
+        }, onFailure: { [weak self] error in
+            AlertHelper.showAlert(inController: self, title: "ERROR!", message: "Could not fetch pin.", style: .default)
+        })
     }
     
 }

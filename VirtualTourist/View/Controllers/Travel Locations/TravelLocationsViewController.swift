@@ -83,6 +83,7 @@ class TravelLocationsViewController: UIViewController {
         
         if segue.identifier == "AlbumSegue" {
             photoAlbumViewController.mapPin = pin
+            photoAlbumViewController.downloadedAlbum = pin.photos?.allObjects as? [PersistedPhoto]
             photoAlbumViewController.dataController = self.dataController
         }
         
@@ -140,7 +141,9 @@ class TravelLocationsViewController: UIViewController {
         
         FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in
             
-            self?.view.isUserInteractionEnabled = false
+            DispatchQueue.main.async {
+                self?.view.isUserInteractionEnabled = false
+            }
             
             guard let flickrPhotos = albumSearchResponse?.photos?.photo else { return }
             
@@ -152,7 +155,9 @@ class TravelLocationsViewController: UIViewController {
                         self?.downloadBackupPhoto(photo)
                     }
                 }
-                self?.view.isUserInteractionEnabled = true
+                DispatchQueue.main.async {
+                    self?.view.isUserInteractionEnabled = true
+                }
                 
             }, onFailure: { (persistenceError) in
                 ErrorHelper.logPersistenceError(persistenceError)

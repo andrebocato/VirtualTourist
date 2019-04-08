@@ -32,17 +32,18 @@ class PhotoAlbumViewController: UIViewController {
     
     // MARK: - Properties
     
-    var album: FlickrPhotos?
+    var downloadedAlbum: [PersistedPhoto]!
     var mapPin: MapPin!
+    var count = 0
     
-    private var insertedIndexPaths: [IndexPath]!
-    private var deletedIndexPaths: [IndexPath]!
-    private var updatedIndexPaths: [IndexPath]!
-    private var selectedItemsCount = 0 {
-        didSet {
-            updateBarButton()
-        }
-    }
+//    private var insertedIndexPaths: [IndexPath]!
+//    private var deletedIndexPaths: [IndexPath]!
+//    private var updatedIndexPaths: [IndexPath]!
+//    private var selectedItemsCount = 0 {
+//        didSet {
+//            updateBarButton()
+//        }
+//    }
     private var pages: Int?
     private var perPage: Int?
     
@@ -56,11 +57,11 @@ class PhotoAlbumViewController: UIViewController {
     // MARK: - IBActions
     
     @IBAction private func barButtonDidReceiveTouchUpInside(_ sender: Any) {
-        if selectedItemsCount == 0 {
+//        if selectedItemsCount == 0 {
             deleteAllObjectsAndReloadRandomPage()
-        } else {
-            deleteSelectedObjects()
-        }
+//        } else {
+//            deleteSelectedObjects()
+//        }
     }
     
     // MARK: - Life Cycle
@@ -68,19 +69,14 @@ class PhotoAlbumViewController: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         
+        count = downloadedAlbum.count
+        
         fetchedResultsController = NSFetchedResultsController<PersistedPhoto>()
         configureNSFetchedResultsController(with: mapPin!)
         loadViewData()
         loadMapData()
         
-        debugPrint("mapPin with id = \(mapPin!.id!) passed successfully by dependency injection")
-    }
-    
-    override func viewDidDisappear(_ animated: Bool) {
-        super.viewDidDisappear(animated)
-        
-        album = nil
-        mapPin = nil
+        debugPrint("mapPin with id = \(mapPin.id!) passed successfully by dependency injection")
     }
     
     // MARK: - Functions
@@ -109,22 +105,35 @@ class PhotoAlbumViewController: UIViewController {
         }
     }
     
-    private func deleteSelectedObjects() {
-        guard let selectedIndexPaths = collectionView.indexPathsForSelectedItems, selectedIndexPaths.count > 0 else { return }
-        
-        var objectsToDelete = [PersistedPhoto]()
-        for indexPath in selectedIndexPaths {
-            objectsToDelete.append(fetchedResultsController!.object(at: indexPath))
-        }
-        
-        dataController.deletePersistedPhotos(objectsToDelete, context: .view, onSuccess: {
-            self.selectedItemsCount = 0
+    private func deletePhoto(withID id: String,
+                             at indexPath: IndexPath) {
+
+        dataController.deletePersistedPhoto(withID: id, context: .view, onSuccess: { [weak self] in
+            debugPrint("deleted")
+            self?.collectionView.deleteItems(at: [indexPath])
+            self?.downloadedAlbum.remove(at: indexPath.item)
             
         }, onFailure: { (persistenceError) in
             ErrorHelper.logPersistenceError(persistenceError)
-            AlertHelper.showAlert(inController: self, title: "Failed", message: "Failed to delete photo.", style: .default)
         })
     }
+    
+//    private func deleteSelectedObjects() {
+//        guard let selectedIndexPaths = collectionView.indexPathsForSelectedItems, selectedIndexPaths.count > 0 else { return }
+//
+//        var objectsToDelete = [PersistedPhoto]()
+//        for indexPath in selectedIndexPaths {
+//            objectsToDelete.append(fetchedResultsController!.object(at: indexPath))
+//        }
+//
+//        dataController.deletePersistedPhotos(objectsToDelete, context: .view, onSuccess: {
+//            self.selectedItemsCount = 0
+//
+//        }, onFailure: { (persistenceError) in
+//            ErrorHelper.logPersistenceError(persistenceError)
+//            AlertHelper.showAlert(inController: self, title: "Failed", message: "Failed to delete photo.", style: .default)
+//        })
+//    }
     
     private func deleteAllObjectsAndReloadRandomPage() {
         guard let objectsToDelete = fetchedResultsController?.fetchedObjects, objectsToDelete.count > 0 else {
@@ -162,7 +171,10 @@ class PhotoAlbumViewController: UIViewController {
                     if photo.data == nil {
                         self?.downloadBackupPhoto(photo)
                     }
+                    // storing instance of album
+                    self?.downloadedAlbum = persistedPhotoArray
                 }
+                
                 
             }, onFailure: { (persistenceError) in
                 ErrorHelper.logPersistenceError(persistenceError)
@@ -208,7 +220,8 @@ class PhotoAlbumViewController: UIViewController {
     }
     
     private func updateBarButton() {
-        barButton.title = selectedItemsCount > 0 ? "Remove photos" : "New Collection"
+//        barButton.title = selectedItemsCount > 0 ? "Remove photos" : "New Collection"
+        barButton.title = "New Collection"
     }
     
     // MARK: - Helper Functions
@@ -258,9 +271,9 @@ class PhotoAlbumViewController: UIViewController {
         })
     }
     
-    private func updateSelectedItemsCountForTappedCollectionView(_ collectionView: UICollectionView, indexPath: IndexPath){
-        selectedItemsCount = collectionView.indexPathsForSelectedItems?.count ?? 0
-    }
+//    private func updateSelectedItemsCountForTappedCollectionView(_ collectionView: UICollectionView, indexPath: IndexPath){
+//        selectedItemsCount = collectionView.indexPathsForSelectedItems?.count ?? 0
+//    }
     
     private func getRandomPage() -> Int? {
         guard let pages = pages, let perPage = perPage else {
@@ -286,11 +299,13 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        guard let numberOfObjects = fetchedResultsController?.sections?[section].numberOfObjects, numberOfObjects > 0 else {
-            collectionView.showEmptyView(message: "No objects in section.")
-            return 0
-        }
-        return numberOfObjects
+//        guard let numberOfObjects = fetchedResultsController?.sections?[section].numberOfObjects, numberOfObjects > 0 else {
+//            collectionView.showEmptyView(message: "No objects in section.")
+//            return 0
+//        }
+//        return numberOfObjects
+        
+        return count > 0 ? count : 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -314,12 +329,15 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        updateSelectedItemsCountForTappedCollectionView(collectionView, indexPath: indexPath)
+//        updateSelectedItemsCountForTappedCollectionView(collectionView, indexPath: indexPath)
+        guard let id = fetchedResultsController?.object(at: indexPath).id else { return }
+        
+        deletePhoto(withID: id, at: indexPath)
     }
     
-    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-        updateSelectedItemsCountForTappedCollectionView(collectionView, indexPath: indexPath)
-    }
+//    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
+//        updateSelectedItemsCountForTappedCollectionView(collectionView, indexPath: indexPath)
+//    }
 }
 
 extension PhotoAlbumViewController: MKMapViewDelegate {
@@ -331,33 +349,36 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
-        case .insert: insertedIndexPaths.append(newIndexPath!)
-        case .delete: deletedIndexPaths.append(indexPath!)
-        case .update: updatedIndexPaths.append(indexPath!)
+        case .insert: //insertedIndexPaths.append(newIndexPath!)
+            collectionView.insertItems(at: [indexPath!])
+        case .delete: //deletedIndexPaths.append(indexPath!)
+            collectionView.deleteItems(at: [indexPath!])
+        case .update: //updatedIndexPaths.append(indexPath!)
+            collectionView.reloadItems(at: [indexPath!])
         default: return
         }
     }
     
-    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        collectionView.performBatchUpdates({
-            for indexPath in self.insertedIndexPaths {
-                self.collectionView.insertItems(at: [indexPath])
-            }
-            
-            for indexPath in self.deletedIndexPaths {
-                self.collectionView.deleteItems(at: [indexPath])
-            }
-            
-            for indexPath in self.updatedIndexPaths {
-                self.collectionView.reloadItems(at: [indexPath])
-            }
-        })
-    }
+//    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+//        collectionView.performBatchUpdates({
+//            for indexPath in self.insertedIndexPaths {
+//                self.collectionView.insertItems(at: [indexPath])
+//            }
+//
+//            for indexPath in self.deletedIndexPaths {
+//                self.collectionView.deleteItems(at: [indexPath])
+//            }
+//
+//            for indexPath in self.updatedIndexPaths {
+//                self.collectionView.reloadItems(at: [indexPath])
+//            }
+//        })
+//    }
     
-    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-        insertedIndexPaths = [IndexPath]()
-        deletedIndexPaths = [IndexPath]()
-        updatedIndexPaths = [IndexPath]()
-    }
+//    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
+//        insertedIndexPaths = [IndexPath]()
+//        deletedIndexPaths = [IndexPath]()
+//        updatedIndexPaths = [IndexPath]()
+//    }
     
 }

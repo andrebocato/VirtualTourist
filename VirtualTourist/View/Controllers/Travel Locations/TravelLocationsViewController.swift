@@ -15,8 +15,6 @@ class TravelLocationsViewController: UIViewController {
 
     // MARK: - IBOutlets
     
-    var downloadedData = [Data]() // gambs pra ver duplicacao
-    
     @IBOutlet private weak var mapView: MKMapView! {
         didSet {
             mapView.delegate = self
@@ -129,21 +127,21 @@ class TravelLocationsViewController: UIViewController {
             
             self?.downloadAlbumForPin(pin)
             
-        }, onFailure: { (error) in
+        }, onFailure: { (persistenceError) in
             AlertHelper.showAlert(inController: self, title: "Failed to save", message: "Could not save current annotation", style: .default)
-            ErrorHelper.logPersistenceError(error!)
+            ErrorHelper.logPersistenceError(persistenceError)
             
         })
     }
     
     private func downloadAlbumForPin(_ pin: MapPin) {
         
-        // @TODO: startLoading()
-        pinView?.isUserInteractionEnabled = false
-        
         let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         
-        FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in // @TODO: change page number to random page from album response's pages
+        FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in
+            
+            self?.view.isUserInteractionEnabled = false
+            
             guard let flickrPhotos = albumSearchResponse?.photos?.photo else { return }
             
             self?.dataController.convertAndPersist(flickrPhotos, mapPin: pin, context: .view, onSuccess: { (persistedPhotoArray) in
@@ -154,20 +152,18 @@ class TravelLocationsViewController: UIViewController {
                         self?.downloadBackupPhoto(photo)
                     }
                 }
+                self?.view.isUserInteractionEnabled = true
                 
-            }, onFailure: { (error) in
-                ErrorHelper.logPersistenceError(error!)
+            }, onFailure: { (persistenceError) in
+                ErrorHelper.logPersistenceError(persistenceError)
                 AlertHelper.showAlert(inController: self!, title: "No album", message: "Could not fetch an album for given pin location.", style: .default)
                 
-            }, onCompletion: nil)
+            })
             
         }, onFailure: { (error) in
-            ErrorHelper.logServiceError(error as! ServiceError)
+            ErrorHelper.logServiceError(error as? ServiceError)
             AlertHelper.showAlert(inController: self, title: "Download failed", message: "Failed to download album for current pin coordinate.", style: .default)
             
-        }, onCompletion: {
-            // @TODO: stopLoading()
-            self.pinView!.isUserInteractionEnabled = true
         })
     }
     
@@ -193,29 +189,19 @@ class TravelLocationsViewController: UIViewController {
         debugPrint("PersistedPhoto with id = \(photo.objectID) has no data. GETing it from Flickr...")
         guard let url = photo.imageURL() else { return }
         FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (imageData) in
-            // @TODO: create [Data]?
+
             if let imageData = imageData {
-                
-                
-                if self?.downloadedData.contains(imageData) == false {
-                     self?.downloadedData.append(imageData)
-                } else {
-                    debugPrint("Duplicated")
-                }
-                
                 self?.dataController.updatePersistedPhotoData(withObjectID: photo.objectID, data: imageData, context: .background, onSuccess: {
                     debugPrint("sucessfully assigned data to PersistedPhoto with id = (\(photo.objectID))")
                     
                 }, onFailure: { (persistenceError) in
-                    ErrorHelper.logPersistenceError(persistenceError!)
-                    
-                }, onCompletion: nil)
+                    ErrorHelper.logPersistenceError(persistenceError)
+                })
             }
             
             }, onFailure: { (error) in
-                ErrorHelper.logServiceError(error as! ServiceError)
-                
-        }, onCompletion: nil)
+                ErrorHelper.logServiceError(error as? ServiceError)
+        })
     }
 }
 
@@ -247,7 +233,9 @@ extension TravelLocationsViewController: MKMapViewDelegate {
         dataController.fetchMapPin(with: pinIDForSelectedAnnotation, onSuccess: { [weak self] (mapPin) in
             guard let mapPin = mapPin else { return }
             self?.performSegue(withIdentifier: "AlbumSegue", sender: mapPin)
-        }, onFailure: { [weak self] error in
+            
+        }, onFailure: { [weak self] persistenceError in
+            ErrorHelper.logPersistenceError(persistenceError)
             AlertHelper.showAlert(inController: self, title: "ERROR!", message: "Could not fetch pin.", style: .default)
         })
     }
@@ -255,13 +243,7 @@ extension TravelLocationsViewController: MKMapViewDelegate {
 }
 
 extension TravelLocationsViewController: UIGestureRecognizerDelegate {
-    
-    // MARK: - UIGestureRecognizer Delegate Methods
-    
 }
 
 extension TravelLocationsViewController: NSFetchedResultsControllerDelegate {
-
-    // MARK: - NSFetchedResultsControllerDelegate Methods
-
 }

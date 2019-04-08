@@ -119,18 +119,18 @@
                         <viewLayoutGuide key="safeArea" id="gK4-3g-Byc"/>
                     </view>
                     <toolbarItems>
-                        <barButtonItem title="New Collection" width="412.5" id="k7K-Cq-XZK">
+                        <barButtonItem title="Bar Button" width="647" id="29w-X5-5zE">
                             <connections>
-                                <action selector="newCollectionBarButtonDidReceiveTouchUpInside:" destination="eY0-rf-cyF" id="Nes-Lw-1ou"/>
+                                <action selector="barButtonDidReceiveTouchUpInside:" destination="eY0-rf-cyF" id="LjE-eR-wfu"/>
                             </connections>
                         </barButtonItem>
                     </toolbarItems>
                     <navigationItem key="navigationItem" id="h3q-4y-XKr"/>
                     <simulatedToolbarMetrics key="simulatedBottomBarMetrics"/>
                     <connections>
+                        <outlet property="barButton" destination="29w-X5-5zE" id="bgP-ro-OuI"/>
                         <outlet property="collectionView" destination="axa-ya-4zU" id="me1-ah-4Xp"/>
                         <outlet property="mapView" destination="wsZ-TM-JkJ" id="PQz-L4-hU1"/>
-                        <outlet property="newCollectionBarButton" destination="k7K-Cq-XZK" id="VHf-Yf-iZT"/>
                     </connections>
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="AQx-40-IT7" userLabel="First Responder" sceneMemberID="firstResponder"/>

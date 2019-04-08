@@ -74,12 +74,6 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
             }
         }
     }
-
-    // MARK: - Functions
-    
-//    func saveViewContext() {
-//        try? dataController.viewContext.save()
-//    }
     
 }
 

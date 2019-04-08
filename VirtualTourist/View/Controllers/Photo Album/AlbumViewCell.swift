@@ -33,4 +33,6 @@ class AlbumViewCell: UICollectionViewCell {
         noImageLabel.isHidden = false
     }
 
+    
+    
 }

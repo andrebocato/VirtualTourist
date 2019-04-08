@@ -16,15 +16,18 @@ class ErrorHelper {
     
     // MARK: - Functions
     
-    static func logServiceError(_ error: ServiceError) {
+    static func logServiceError(_ error: ServiceError?) {
+        guard let error = error else { return }
         debugPrint(error.localizedDescription + " Error code: \(error.code).")
     }
     
-    static func logPersistenceError(_ error: PersistenceError) {
+    static func logPersistenceError(_ error: PersistenceError?) {
+        guard let error = error else { return }
         debugPrint(error.localizedDescription + " Error code: \(error.code).")
     }
     
-    static func logSerializationError(_ error: SerializationError) {
+    static func logSerializationError(_ error: SerializationError?) {
+        guard let error = error else { return }
         debugPrint(error.localizedDescription + " Error code: \(error.code).")
     }
     

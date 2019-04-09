@@ -36,14 +36,6 @@ class PhotoAlbumViewController: UIViewController {
     var mapPin: MapPin!
     var count = 0
     
-//    private var insertedIndexPaths: [IndexPath]!
-//    private var deletedIndexPaths: [IndexPath]!
-//    private var updatedIndexPaths: [IndexPath]!
-//    private var selectedItemsCount = 0 {
-//        didSet {
-//            updateBarButton()
-//        }
-//    }
     private var pages: Int?
     private var perPage: Int?
     
@@ -53,15 +45,11 @@ class PhotoAlbumViewController: UIViewController {
         }
     }
     var dataController: DataController!
-
+    
     // MARK: - IBActions
     
     @IBAction private func barButtonDidReceiveTouchUpInside(_ sender: Any) {
-//        if selectedItemsCount == 0 {
-            deleteAllObjectsAndReloadRandomPage()
-//        } else {
-//            deleteSelectedObjects()
-//        }
+        deleteAllObjectsAndReloadRandomPage()
     }
     
     // MARK: - Life Cycle
@@ -82,19 +70,16 @@ class PhotoAlbumViewController: UIViewController {
     // MARK: - Functions
     
     private func loadMapData() {
-        guard let mapPin = mapPin else { return }
         let coordinate = CLLocationCoordinate2D(latitude: mapPin.latitude, longitude: mapPin.longitude)
-        mapView.setCenter(coordinate, animated: true)
-        
-        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 2000, longitudinalMeters: 2000)
-        mapView.setRegion(region, animated: true)
+        let region = MKCoordinateRegion(center: coordinate, latitudinalMeters: 2500, longitudinalMeters: 2500)
+        mapView.setMapCenterAndRegion(using: coordinate, region: region)
         
         let annotation = MKPointAnnotation()
         annotation.coordinate = coordinate
         mapView.addAnnotation(annotation)
         mapView.selectAnnotation(annotation, animated: true)
     }
-
+    
     private func loadViewData() {
         configureNSFetchedResultsController(with: mapPin)
         guard let pinPhotos = mapPin.photos, pinPhotos.count > 0 else {
@@ -107,33 +92,16 @@ class PhotoAlbumViewController: UIViewController {
     
     private func deletePhoto(withID id: String,
                              at indexPath: IndexPath) {
-
+        
         dataController.deletePersistedPhoto(withID: id, context: .view, onSuccess: { [weak self] in
             debugPrint("deleted")
             self?.collectionView.deleteItems(at: [indexPath])
             self?.downloadedAlbum.remove(at: indexPath.item)
             
-        }, onFailure: { (persistenceError) in
-            ErrorHelper.logPersistenceError(persistenceError)
+            }, onFailure: { (persistenceError) in
+                ErrorHelper.logPersistenceError(persistenceError)
         })
     }
-    
-//    private func deleteSelectedObjects() {
-//        guard let selectedIndexPaths = collectionView.indexPathsForSelectedItems, selectedIndexPaths.count > 0 else { return }
-//
-//        var objectsToDelete = [PersistedPhoto]()
-//        for indexPath in selectedIndexPaths {
-//            objectsToDelete.append(fetchedResultsController!.object(at: indexPath))
-//        }
-//
-//        dataController.deletePersistedPhotos(objectsToDelete, context: .view, onSuccess: {
-//            self.selectedItemsCount = 0
-//
-//        }, onFailure: { (persistenceError) in
-//            ErrorHelper.logPersistenceError(persistenceError)
-//            AlertHelper.showAlert(inController: self, title: "Failed", message: "Failed to delete photo.", style: .default)
-//        })
-//    }
     
     private func deleteAllObjectsAndReloadRandomPage() {
         guard let objectsToDelete = fetchedResultsController?.fetchedObjects, objectsToDelete.count > 0 else {
@@ -148,12 +116,12 @@ class PhotoAlbumViewController: UIViewController {
                 self?.downloadAlbumForPin(self!.mapPin)
             }
             
-        }, onFailure: { (persistenceError) in
-            ErrorHelper.logPersistenceError(persistenceError)
-            AlertHelper.showAlert(inController: self, title: "Failed", message: "Failed to delete photos.", style: .default)
+            }, onFailure: { (persistenceError) in
+                ErrorHelper.logPersistenceError(persistenceError)
+                AlertHelper.showAlert(inController: self, title: "Failed", message: "Failed to delete photos.", style: .default)
         })
     }
-
+    
     private func downloadAlbumForPin(_ pin: MapPin,
                                      page: Int? = 1,
                                      onCompletion: (() -> Void)? = nil) {
@@ -220,7 +188,6 @@ class PhotoAlbumViewController: UIViewController {
     }
     
     private func updateBarButton() {
-//        barButton.title = selectedItemsCount > 0 ? "Remove photos" : "New Collection"
         barButton.title = "New Collection"
     }
     
@@ -271,9 +238,6 @@ class PhotoAlbumViewController: UIViewController {
         })
     }
     
-//    private func updateSelectedItemsCountForTappedCollectionView(_ collectionView: UICollectionView, indexPath: IndexPath){
-//        selectedItemsCount = collectionView.indexPathsForSelectedItems?.count ?? 0
-//    }
     
     private func getRandomPage() -> Int? {
         guard let pages = pages, let perPage = perPage else {
@@ -299,12 +263,6 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-//        guard let numberOfObjects = fetchedResultsController?.sections?[section].numberOfObjects, numberOfObjects > 0 else {
-//            collectionView.showEmptyView(message: "No objects in section.")
-//            return 0
-//        }
-//        return numberOfObjects
-        
         return count > 0 ? count : 0
     }
     
@@ -318,10 +276,8 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
 }
 
 extension PhotoAlbumViewController: UICollectionViewDelegate {
-
-    // MARK: - UICollectioView Delegate Methods
-
     
+    // MARK: - UICollectioView Delegate Methods
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
         let photo = fetchedResultsController!.object(at: indexPath)
@@ -329,15 +285,11 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-//        updateSelectedItemsCountForTappedCollectionView(collectionView, indexPath: indexPath)
         guard let id = fetchedResultsController?.object(at: indexPath).id else { return }
         
         deletePhoto(withID: id, at: indexPath)
     }
     
-//    func collectionView(_ collectionView: UICollectionView, didDeselectItemAt indexPath: IndexPath) {
-//        updateSelectedItemsCountForTappedCollectionView(collectionView, indexPath: indexPath)
-//    }
 }
 
 extension PhotoAlbumViewController: MKMapViewDelegate {
@@ -358,27 +310,5 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
         default: return
         }
     }
-    
-//    func controllerDidChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-//        collectionView.performBatchUpdates({
-//            for indexPath in self.insertedIndexPaths {
-//                self.collectionView.insertItems(at: [indexPath])
-//            }
-//
-//            for indexPath in self.deletedIndexPaths {
-//                self.collectionView.deleteItems(at: [indexPath])
-//            }
-//
-//            for indexPath in self.updatedIndexPaths {
-//                self.collectionView.reloadItems(at: [indexPath])
-//            }
-//        })
-//    }
-    
-//    func controllerWillChangeContent(_ controller: NSFetchedResultsController<NSFetchRequestResult>) {
-//        insertedIndexPaths = [IndexPath]()
-//        deletedIndexPaths = [IndexPath]()
-//        updatedIndexPaths = [IndexPath]()
-//    }
     
 }

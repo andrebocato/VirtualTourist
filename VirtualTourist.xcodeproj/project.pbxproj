@@ -28,6 +28,7 @@
 		6594B01F223C200700FA2DC2 /* VirtualTouristTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6594B01E223C200700FA2DC2 /* VirtualTouristTests.swift */; };
 		6594B02A223C200700FA2DC2 /* VirtualTouristUITests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 6594B029223C200700FA2DC2 /* VirtualTouristUITests.swift */; };
 		65A660C42242DEC800067C2B /* DataController+AutoSave.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65A660C32242DEC800067C2B /* DataController+AutoSave.swift */; };
+		65C27BBD225CD9160013E556 /* MKMapView+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65C27BBC225CD9160013E556 /* MKMapView+Extension.swift */; };
 		65D162E622401EFE00422520 /* FlickrConstants.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D162E522401EFE00422520 /* FlickrConstants.swift */; };
 		65D162E92240203800422520 /* URLRequest+Extension.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D162E82240203800422520 /* URLRequest+Extension.swift */; };
 		65D162EC22402C9100422520 /* ServiceResponse.swift in Sources */ = {isa = PBXBuildFile; fileRef = 65D162EB22402C9100422520 /* ServiceResponse.swift */; };
@@ -86,6 +87,7 @@
 		6594B029223C200700FA2DC2 /* VirtualTouristUITests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VirtualTouristUITests.swift; sourceTree = "<group>"; };
 		6594B02B223C200700FA2DC2 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		65A660C32242DEC800067C2B /* DataController+AutoSave.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "DataController+AutoSave.swift"; sourceTree = "<group>"; };
+		65C27BBC225CD9160013E556 /* MKMapView+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "MKMapView+Extension.swift"; sourceTree = "<group>"; };
 		65D162E522401EFE00422520 /* FlickrConstants.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FlickrConstants.swift; sourceTree = "<group>"; };
 		65D162E82240203800422520 /* URLRequest+Extension.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "URLRequest+Extension.swift"; sourceTree = "<group>"; };
 		65D162EB22402C9100422520 /* ServiceResponse.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServiceResponse.swift; sourceTree = "<group>"; };
@@ -320,6 +322,7 @@
 			children = (
 				65D162E82240203800422520 /* URLRequest+Extension.swift */,
 				146C6A3D2241730C007C9A16 /* UICollectionView+EmptyView.swift */,
+				65C27BBC225CD9160013E556 /* MKMapView+Extension.swift */,
 			);
 			path = Extensions;
 			sourceTree = "<group>";
@@ -514,6 +517,7 @@
 				65FFE201224019B2003E1D1A /* AlbumSearchResponse.swift in Sources */,
 				6577784A2242D0BB0093C78D /* VirtualTourist.xcdatamodeld in Sources */,
 				146C6A3C22413D66007C9A16 /* URLHelper.swift in Sources */,
+				65C27BBD225CD9160013E556 /* MKMapView+Extension.swift in Sources */,
 				65FFE1FC22400495003E1D1A /* AlertHelper.swift in Sources */,
 				65FFE1F822400367003E1D1A /* ErrorHelper.swift in Sources */,
 				65FFE1F3223FF17C003E1D1A /* Service.swift in Sources */,

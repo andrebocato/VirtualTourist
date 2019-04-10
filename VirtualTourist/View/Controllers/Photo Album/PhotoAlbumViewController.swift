@@ -261,7 +261,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return fetchedResultsController?.sections?.count ?? 0
+        return fetchedResultsController?.sections?[section].numberOfObjects ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -299,10 +299,6 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
-//        case .insert: //insertedIndexPaths.append(newIndexPath!)
-//            collectionView.insertItems(at: [indexPath!])
-//        case .delete: //deletedIndexPaths.append(indexPath!)
-//            collectionView.deleteItems(at: [indexPath!])
         case .update: //updatedIndexPaths.append(indexPath!)
             collectionView.reloadItems(at: [indexPath!])
         default: return

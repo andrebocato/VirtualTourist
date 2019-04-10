@@ -32,9 +32,7 @@ class PhotoAlbumViewController: UIViewController {
     
     // MARK: - Properties
     
-    var downloadedAlbum: [PersistedPhoto]!
     var mapPin: MapPin!
-    var count = 0
     
     private var pages: Int?
     private var perPage: Int?
@@ -56,9 +54,6 @@ class PhotoAlbumViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        count = downloadedAlbum.count
-        
         fetchedResultsController = NSFetchedResultsController<PersistedPhoto>()
         configureNSFetchedResultsController(with: mapPin!)
         loadViewData()
@@ -95,12 +90,13 @@ class PhotoAlbumViewController: UIViewController {
         
         dataController.deletePersistedPhoto(withID: id, context: .view, onSuccess: { [weak self] in
             debugPrint("deleted")
-            self?.collectionView.deleteItems(at: [indexPath])
-            self?.downloadedAlbum.remove(at: indexPath.item)
             
-            }, onFailure: { (persistenceError) in
-                ErrorHelper.logPersistenceError(persistenceError)
+            self?.collectionView.reloadData()
+            
+        }, onFailure: { (persistenceError) in
+            ErrorHelper.logPersistenceError(persistenceError)
         })
+        
     }
     
     private func deleteAllObjectsAndReloadRandomPage() {
@@ -139,10 +135,7 @@ class PhotoAlbumViewController: UIViewController {
                     if photo.data == nil {
                         self?.downloadBackupPhoto(photo)
                     }
-                    // storing instance of album
-                    self?.downloadedAlbum = persistedPhotoArray
                 }
-                
                 
             }, onFailure: { (persistenceError) in
                 ErrorHelper.logPersistenceError(persistenceError)
@@ -181,7 +174,12 @@ class PhotoAlbumViewController: UIViewController {
     private func configureCell(_ cell: AlbumViewCell,
                                at indexPath: IndexPath) {
         
-        guard let photoFromPinAlbum = mapPin?.photos?.allObjects[indexPath.item] as? PersistedPhoto, let imageData = photoFromPinAlbum.data else { return }
+        guard let photoFromPinAlbum = fetchedResultsController?.object(at: indexPath) else { return }
+        
+        guard let imageData = photoFromPinAlbum.data else {
+            downloadPhoto(from: photoFromPinAlbum.imageURL()!, for: cell, photoFromPinAlbum)
+            return
+        }
         
         cell.configureWith(imageData)
         debugPrint("cell \(indexPath) configured")
@@ -263,7 +261,7 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return count > 0 ? count : 0
+        return fetchedResultsController?.sections?.count ?? 0
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -301,10 +299,10 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
-        case .insert: //insertedIndexPaths.append(newIndexPath!)
-            collectionView.insertItems(at: [indexPath!])
-        case .delete: //deletedIndexPaths.append(indexPath!)
-            collectionView.deleteItems(at: [indexPath!])
+//        case .insert: //insertedIndexPaths.append(newIndexPath!)
+//            collectionView.insertItems(at: [indexPath!])
+//        case .delete: //deletedIndexPaths.append(indexPath!)
+//            collectionView.deleteItems(at: [indexPath!])
         case .update: //updatedIndexPaths.append(indexPath!)
             collectionView.reloadItems(at: [indexPath!])
         default: return

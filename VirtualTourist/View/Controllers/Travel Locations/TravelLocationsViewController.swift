@@ -80,7 +80,6 @@ class TravelLocationsViewController: UIViewController {
         
         if segue.identifier == "AlbumSegue" {
             photoAlbumViewController.mapPin = pin
-            photoAlbumViewController.downloadedAlbum = pin.photos?.allObjects as? [PersistedPhoto]
             photoAlbumViewController.dataController = self.dataController
         }
     }

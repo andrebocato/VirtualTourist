@@ -23,11 +23,7 @@ class PhotoAlbumViewController: UIViewController {
             collectionView.dataSource = self
         }
     }
-    @IBOutlet private weak var mapView: MKMapView! {
-        didSet {
-            mapView.delegate = self
-        }
-    }
+    @IBOutlet private weak var mapView: MKMapView!
     @IBOutlet private weak var barButton: UIBarButtonItem!
     
     // MARK: - Properties
@@ -37,11 +33,7 @@ class PhotoAlbumViewController: UIViewController {
     private var pages: Int?
     private var perPage: Int?
     
-    var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>? {
-        didSet {
-            fetchedResultsController?.delegate = self
-        }
-    }
+    var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>?
     var dataController: DataController!
     
     // MARK: - IBActions
@@ -59,7 +51,7 @@ class PhotoAlbumViewController: UIViewController {
         loadViewData()
         loadMapData()
         
-        debugPrint("mapPin with id = \(mapPin.id!) passed successfully by dependency injection")
+//        debugPrint("mapPin with id = \(mapPin.id!) passed successfully by dependency injection")
     }
     
     // MARK: - Functions
@@ -89,7 +81,7 @@ class PhotoAlbumViewController: UIViewController {
                              at indexPath: IndexPath) {
         
         dataController.deletePersistedPhoto(withID: id, context: .view, onSuccess: { [weak self] in
-            debugPrint("deleted")
+            debugPrint("\(indexPath) deleted")
             
             self?.collectionView.reloadData()
             
@@ -129,13 +121,11 @@ class PhotoAlbumViewController: UIViewController {
             guard let flickrPhotos = albumSearchResponse?.photos?.photo else { return }
             
             self?.dataController.convertAndPersist(flickrPhotos, mapPin: pin, context: .view, onSuccess: { (persistedPhotoArray) in
-                debugPrint("successfully converted, persisted photos array (flickr -> persisted) and assigned to pin (id = \(pin.id ?? "")")
+//                debugPrint("successfully converted, persisted photos array (flickr -> persisted) and assigned to pin (id = \(pin.id ?? "")")
                 
-                for photo in persistedPhotoArray {
-                    if photo.data == nil {
-                        self?.downloadBackupPhoto(photo)
-                    }
-                }
+                persistedPhotoArray
+                    .filter { $0.data == nil }
+                    .forEach { self?.downloadBackupPhoto($0) }
                 
             }, onFailure: { (persistenceError) in
                 ErrorHelper.logPersistenceError(persistenceError)
@@ -177,12 +167,14 @@ class PhotoAlbumViewController: UIViewController {
         guard let photoFromPinAlbum = fetchedResultsController?.object(at: indexPath) else { return }
         
         guard let imageData = photoFromPinAlbum.data else {
-            downloadPhoto(from: photoFromPinAlbum.imageURL()!, for: cell, photoFromPinAlbum)
+            if let url = photoFromPinAlbum.imageURL() {
+                 downloadPhoto(from: url, for: cell, photoFromPinAlbum)
+            }
             return
         }
         
         cell.configureWith(imageData)
-        debugPrint("cell \(indexPath) configured")
+//        debugPrint("cell \(indexPath) configured")
     }
     
     private func updateBarButton() {
@@ -218,13 +210,13 @@ class PhotoAlbumViewController: UIViewController {
     }
     
     private func downloadBackupPhoto(_ photo: PersistedPhoto) {
-        debugPrint("PersistedPhoto with id = \(photo.objectID) has no data. GETing it from Flickr...")
+//        debugPrint("PersistedPhoto with id = \(photo.objectID) has no data. GETing it from Flickr...")
         guard let url = photo.imageURL() else { return }
         FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (imageData) in
             
             if let imageData = imageData {
                 self?.dataController.updatePersistedPhotoData(withObjectID: photo.objectID, data: imageData, context: .background, onSuccess: {
-                    debugPrint("sucessfully assigned data to PersistedPhoto with id = (\(photo.objectID))")
+//                    debugPrint("sucessfully assigned data to PersistedPhoto with id = (\(photo.objectID))")
                     
                 }, onFailure: { (persistenceError) in
                     ErrorHelper.logPersistenceError(persistenceError)
@@ -261,7 +253,9 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        return fetchedResultsController?.sections?[section].numberOfObjects ?? 0
+        let numberOfItemsInSection = fetchedResultsController?.sections?[section].numberOfObjects ?? 0
+        debugPrint("numberOfItemsInSection[\(section)] = \(numberOfItemsInSection)")
+        return numberOfItemsInSection
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
@@ -284,25 +278,7 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let id = fetchedResultsController?.object(at: indexPath).id else { return }
-        
         deletePhoto(withID: id, at: indexPath)
-    }
-    
-}
-
-extension PhotoAlbumViewController: MKMapViewDelegate {
-}
-
-extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
-    
-    // MARK: - NSFetchedResultsControllerDelegate Methods
-    
-    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
-        switch type {
-        case .update: //updatedIndexPaths.append(indexPath!)
-            collectionView.reloadItems(at: [indexPath!])
-        default: return
-        }
     }
     
 }

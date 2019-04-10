@@ -23,7 +23,11 @@ class PhotoAlbumViewController: UIViewController {
             collectionView.dataSource = self
         }
     }
-    @IBOutlet private weak var mapView: MKMapView!
+    @IBOutlet private weak var mapView: MKMapView! {
+        didSet {
+            mapView.isUserInteractionEnabled = false
+        }
+    }
     @IBOutlet private weak var barButton: UIBarButtonItem!
     
     // MARK: - Properties
@@ -33,7 +37,11 @@ class PhotoAlbumViewController: UIViewController {
     private var pages: Int?
     private var perPage: Int?
     
-    var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>?
+    var fetchedResultsController: NSFetchedResultsController<PersistedPhoto>? {
+        didSet {
+            fetchedResultsController?.delegate = self
+        }
+    }
     var dataController: DataController!
     
     // MARK: - IBActions
@@ -83,7 +91,7 @@ class PhotoAlbumViewController: UIViewController {
         dataController.deletePersistedPhoto(withID: id, context: .view, onSuccess: { [weak self] in
             debugPrint("\(indexPath) deleted")
             
-            self?.collectionView.reloadData()
+            DispatchQueue.main.async { self?.collectionView.reloadData() }
             
         }, onFailure: { (persistenceError) in
             ErrorHelper.logPersistenceError(persistenceError)
@@ -92,19 +100,23 @@ class PhotoAlbumViewController: UIViewController {
     }
     
     private func deleteAllObjectsAndReloadRandomPage() {
+        
         guard let objectsToDelete = fetchedResultsController?.fetchedObjects, objectsToDelete.count > 0 else {
             self.downloadAlbumForPin(mapPin)
             return
         }
         
         dataController.deletePersistedPhotos(objectsToDelete, context: .view, onSuccess: { [weak self] in
+            
+            guard let mapPin = self?.mapPin else { return }
+
             if let randomPage = self?.getRandomPage() {
-                self?.downloadAlbumForPin(self!.mapPin, page: randomPage)
+                self?.downloadAlbumForPin(mapPin, page: randomPage)
             } else {
-                self?.downloadAlbumForPin(self!.mapPin)
+                self?.downloadAlbumForPin(mapPin)
             }
             
-            }, onFailure: { (persistenceError) in
+        }, onFailure: { (persistenceError) in
                 ErrorHelper.logPersistenceError(persistenceError)
                 AlertHelper.showAlert(inController: self, title: "Failed", message: "Failed to delete photos.", style: .default)
         })
@@ -126,6 +138,8 @@ class PhotoAlbumViewController: UIViewController {
                 persistedPhotoArray
                     .filter { $0.data == nil }
                     .forEach { self?.downloadBackupPhoto($0) }
+                
+                DispatchQueue.main.async { self?.collectionView.reloadData() }
                 
             }, onFailure: { (persistenceError) in
                 ErrorHelper.logPersistenceError(persistenceError)
@@ -249,12 +263,16 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
             collectionView.showEmptyView(message: "No sections.")
             return 0
         }
+        collectionView.hideEmptyView()
         return numberOfSections
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
-        let numberOfItemsInSection = fetchedResultsController?.sections?[section].numberOfObjects ?? 0
-        debugPrint("numberOfItemsInSection[\(section)] = \(numberOfItemsInSection)")
+        guard let numberOfItemsInSection = fetchedResultsController?.sections?[section].numberOfObjects, numberOfItemsInSection > 0 else {
+            collectionView.showEmptyView(message: "No items.")
+            return 0
+        }
+        collectionView.hideEmptyView()
         return numberOfItemsInSection
     }
     
@@ -272,13 +290,25 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
     // MARK: - UICollectioView Delegate Methods
     
     func collectionView(_ collectionView: UICollectionView, shouldSelectItemAt indexPath: IndexPath) -> Bool {
-        let photo = fetchedResultsController!.object(at: indexPath)
-        return photo.data != nil
+        return fetchedResultsController?.object(at: indexPath) != nil
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let id = fetchedResultsController?.object(at: indexPath).id else { return }
         deletePhoto(withID: id, at: indexPath)
+    }
+    
+}
+
+extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
+    
+    // MARK: - NSFetchedResultsControllerDelegate Methods
+    
+    func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
+        switch type {
+        case .delete, .update, .insert: debugPrint("\(type)") //DispatchQueue.main.async { self.collectionView.reloadData() }
+        default: return
+        }
     }
     
 }

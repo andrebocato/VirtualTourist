@@ -60,7 +60,7 @@ class PhotoAlbumViewController: UIViewController {
     
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
-        clearViewData()
+        mapPin = nil
     }
     
     // MARK: - Functions
@@ -79,11 +79,10 @@ class PhotoAlbumViewController: UIViewController {
     private func loadViewData() {
         configureNSFetchedResultsController(with: mapPin)
         guard let pinPhotos = mapPin.photos, pinPhotos.count > 0 else {
-            downloadAlbumForPin(mapPin, page: getRandomPage(), onCompletion: { [weak self] in
-                self?.updateBarButton()
-            })
+            downloadAlbumForPin(mapPin, page: getRandomPage())
             return
         }
+        
     }
     
     private func deletePhoto(withID id: String,
@@ -94,11 +93,10 @@ class PhotoAlbumViewController: UIViewController {
             
             DispatchQueue.main.async { self?.collectionView.reloadData() }
             
-        }, onFailure: { (persistenceError) in
-            ErrorHelper.logPersistenceError(persistenceError)
-            
+            }, onFailure: { (persistenceError) in
+                ErrorHelper.logPersistenceError(persistenceError)
+                
         })
-        
     }
     
     private func deleteAllObjectsAndReloadRandomPage() {
@@ -106,7 +104,8 @@ class PhotoAlbumViewController: UIViewController {
             dataController.deletePersistedPhotos(objectsToDelete, context: .view, onSuccess: { [weak self] in
                 guard let mapPin = self?.mapPin, let randomPage = self?.getRandomPage() else { return }
                 self?.downloadAlbumForPin(mapPin, page: randomPage)
-            }, onFailure: { (persistenceError) in
+                
+                }, onFailure: { (persistenceError) in
                     ErrorHelper.logPersistenceError(persistenceError)
                     AlertHelper.showAlert(inController: self, title: "Failed", message: "Failed to delete photos.", style: .default)
             })
@@ -116,8 +115,7 @@ class PhotoAlbumViewController: UIViewController {
     }
     
     private func downloadAlbumForPin(_ pin: MapPin,
-                                     page: Int,
-                                     onCompletion: (() -> Void)? = nil) {
+                                     page: Int){
         
         let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         
@@ -127,7 +125,7 @@ class PhotoAlbumViewController: UIViewController {
             
             self?.pages = albumSearchResponse?.photos?.pages
             self?.perPage = albumSearchResponse?.photos?.perPage
-                
+            
             self?.dataController.convertAndPersist(flickrPhotos, mapPin: pin, context: .view, onSuccess: { (persistedPhotoArray) in
                 
                 persistedPhotoArray
@@ -175,29 +173,19 @@ class PhotoAlbumViewController: UIViewController {
         
         guard let photoFromPinAlbum = fetchedResultsController?.object(at: indexPath) else { return }
         
-        guard let imageData = photoFromPinAlbum.data else {
-            if let url = photoFromPinAlbum.imageURL() {
-                 downloadPhoto(from: url, for: cell, photoFromPinAlbum)
-            }
-            return
+        if let imageData = photoFromPinAlbum.data {
+            cell.configureWith(imageData)
+        } else {
+            guard let url = photoFromPinAlbum.imageURL() else { return }
+            downloadBackupPhoto(from: url, for: cell, photoFromPinAlbum)
         }
-        
-        cell.configureWith(imageData)
-    }
-    
-    private func updateBarButton() {
-        barButton.title = "New Collection"
-    }
-    
-    private func clearViewData() {
-        mapPin = nil
     }
     
     // MARK: - Helper Functions
     
-    private func downloadPhoto(from url: String,
-                               for cell: AlbumViewCell,
-                               _ photo: PersistedPhoto) {
+    private func downloadBackupPhoto(from url: String,
+                                     for cell: AlbumViewCell,
+                                     _ photo: PersistedPhoto) {
         
         FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (data) in
             guard let imageData = data else {

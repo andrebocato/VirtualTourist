@@ -55,7 +55,6 @@ class TravelLocationsViewController: UIViewController {
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         fetchedResultsController = NSFetchedResultsController<MapPin>()
         configureNSFetchedResultsController()
         loadMapData()
@@ -69,18 +68,20 @@ class TravelLocationsViewController: UIViewController {
     override func viewWillDisappear(_ animated: Bool) {
         super.viewWillDisappear(animated)
         navigationController?.navigationBar.isHidden = false
+        
+        
     }
     
     // MARK: - Navigation
     
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        guard let photoAlbumViewController = segue.destination as? PhotoAlbumViewController,
+        guard let destination = segue.destination as? PhotoAlbumViewController,
             let pin = sender as? MapPin,
             segue.destination is PhotoAlbumViewController else { return }
         
         if segue.identifier == "AlbumSegue" {
-            photoAlbumViewController.mapPin = pin
-            photoAlbumViewController.dataController = self.dataController
+            destination.mapPin = pin
+            destination.dataController = dataController
         }
     }
     

@@ -20,7 +20,7 @@ class FlickrService {
                      onFailure failed: ((Error?) -> Void)? = nil,
                      onCompletion completed: (() -> Void)? = nil) {
     
-        let urlString = createUrl()
+        let urlString = createUrl(with: coordinate, page: page)
         let url = URL(string: urlString)
         
         Service.shared.request(httpMethod: .get, url: url!).treatResponse(onSuccess: { (albumSearchResponse: AlbumSearchResponse?, serviceResponse) in
@@ -33,8 +33,10 @@ class FlickrService {
                 return
             }
             succeeded(albumSearchResponse)
+            
         }, onFailure: { (serviceResponse) in
             failed?(serviceResponse.errorResponse)
+            
         }) {
             completed?()
         }
@@ -63,14 +65,12 @@ class FlickrService {
 
     // MARK: - Helper Functions
     
-    private func createUrl(withCoordinates latitude: Double? = nil,
-                           longitude: Double? = nil,
+    private func createUrl(with coordinate: CLLocationCoordinate2D? = nil,
                            page: Int = 1) -> String {
         
-        func createBoundingBoxString(from latitude: Double? = nil,
-                                     _ longitude: Double? = nil) -> String {
+        func createBoundingBoxString(from coordinate: CLLocationCoordinate2D? = nil) -> String {
             
-            guard let latitude = latitude, let longitude = longitude else { return "0,0,0,0" }
+            guard let latitude = coordinate?.latitude, let longitude = coordinate?.longitude else { return "0,0,0,0" }
             
             let minimumLongitude = max(longitude - FlickrConstants.searchBBoxHalfWidth, FlickrConstants.searchLonRange.0)
             let minimumLatitude = max(latitude - FlickrConstants.searchBBoxHalfHeight, FlickrConstants.searchLatRange.0)
@@ -83,7 +83,7 @@ class FlickrService {
         let methodParameters: [String: String] = [
             FlickrConstants.ParameterKeys.method: FlickrConstants.ParameterValues.searchMethod,
             FlickrConstants.ParameterKeys.apiKey: FlickrConstants.flickrRestApiKey,
-            FlickrConstants.ParameterKeys.boundingBox: createBoundingBoxString(from: latitude, longitude),
+            FlickrConstants.ParameterKeys.boundingBox: createBoundingBoxString(from: coordinate),
             FlickrConstants.ParameterKeys.safeSearch: FlickrConstants.ParameterValues.useSafeSearch,
             FlickrConstants.ParameterKeys.extras: FlickrConstants.ParameterValues.mediumURL,
             FlickrConstants.ParameterKeys.format: FlickrConstants.ParameterValues.responseFormat,

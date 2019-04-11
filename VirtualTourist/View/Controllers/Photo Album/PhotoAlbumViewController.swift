@@ -5,8 +5,6 @@
 //  Created by Andre Sanches Bocato on 15/03/19.
 //  Copyright © 2019 Andre Sanches Bocato. All rights reserved.
 //
-// @TODO: if mapPin.photos = nil, downloads a flickr album and associates with mapPin
-// @TODO: downloadAlbum() function should not be in the view controller
 
 import UIKit
 import MapKit
@@ -58,8 +56,11 @@ class PhotoAlbumViewController: UIViewController {
         configureNSFetchedResultsController(with: mapPin!)
         loadViewData()
         loadMapData()
-        
-//        debugPrint("mapPin with id = \(mapPin.id!) passed successfully by dependency injection")
+    }
+    
+    override func viewWillDisappear(_ animated: Bool) {
+        super.viewWillDisappear(animated)
+        clearViewData()
     }
     
     // MARK: - Functions
@@ -78,7 +79,7 @@ class PhotoAlbumViewController: UIViewController {
     private func loadViewData() {
         configureNSFetchedResultsController(with: mapPin)
         guard let pinPhotos = mapPin.photos, pinPhotos.count > 0 else {
-            downloadAlbumForPin(mapPin, onCompletion: { [weak self] in
+            downloadAlbumForPin(mapPin, page: getRandomPage(), onCompletion: { [weak self] in
                 self?.updateBarButton()
             })
             return
@@ -95,45 +96,39 @@ class PhotoAlbumViewController: UIViewController {
             
         }, onFailure: { (persistenceError) in
             ErrorHelper.logPersistenceError(persistenceError)
+            
         })
         
     }
     
     private func deleteAllObjectsAndReloadRandomPage() {
-        
-        guard let objectsToDelete = fetchedResultsController?.fetchedObjects, objectsToDelete.count > 0 else {
-            self.downloadAlbumForPin(mapPin)
-            return
-        }
-        
-        dataController.deletePersistedPhotos(objectsToDelete, context: .view, onSuccess: { [weak self] in
-            
-            guard let mapPin = self?.mapPin else { return }
-
-            if let randomPage = self?.getRandomPage() {
+        if let objectsToDelete = fetchedResultsController?.fetchedObjects, objectsToDelete.count > 0 {
+            dataController.deletePersistedPhotos(objectsToDelete, context: .view, onSuccess: { [weak self] in
+                guard let mapPin = self?.mapPin, let randomPage = self?.getRandomPage() else { return }
                 self?.downloadAlbumForPin(mapPin, page: randomPage)
-            } else {
-                self?.downloadAlbumForPin(mapPin)
-            }
-            
-        }, onFailure: { (persistenceError) in
-                ErrorHelper.logPersistenceError(persistenceError)
-                AlertHelper.showAlert(inController: self, title: "Failed", message: "Failed to delete photos.", style: .default)
-        })
+            }, onFailure: { (persistenceError) in
+                    ErrorHelper.logPersistenceError(persistenceError)
+                    AlertHelper.showAlert(inController: self, title: "Failed", message: "Failed to delete photos.", style: .default)
+            })
+        } else {
+            self.downloadAlbumForPin(mapPin, page: getRandomPage())
+        }
     }
     
     private func downloadAlbumForPin(_ pin: MapPin,
-                                     page: Int? = 1,
+                                     page: Int,
                                      onCompletion: (() -> Void)? = nil) {
         
         let coordinate = CLLocationCoordinate2D(latitude: pin.latitude, longitude: pin.longitude)
         
-        FlickrService().searchAlbum(inCoordinate: coordinate, page: page ?? 1, onSuccess: { [weak self] (albumSearchResponse) in
+        FlickrService().searchAlbum(inCoordinate: coordinate, page: page, onSuccess: { [weak self] (albumSearchResponse) in
             
             guard let flickrPhotos = albumSearchResponse?.photos?.photo else { return }
             
+            self?.pages = albumSearchResponse?.photos?.pages
+            self?.perPage = albumSearchResponse?.photos?.perPage
+                
             self?.dataController.convertAndPersist(flickrPhotos, mapPin: pin, context: .view, onSuccess: { (persistedPhotoArray) in
-//                debugPrint("successfully converted, persisted photos array (flickr -> persisted) and assigned to pin (id = \(pin.id ?? "")")
                 
                 persistedPhotoArray
                     .filter { $0.data == nil }
@@ -188,11 +183,14 @@ class PhotoAlbumViewController: UIViewController {
         }
         
         cell.configureWith(imageData)
-//        debugPrint("cell \(indexPath) configured")
     }
     
     private func updateBarButton() {
         barButton.title = "New Collection"
+    }
+    
+    private func clearViewData() {
+        mapPin = nil
     }
     
     // MARK: - Helper Functions
@@ -224,13 +222,11 @@ class PhotoAlbumViewController: UIViewController {
     }
     
     private func downloadBackupPhoto(_ photo: PersistedPhoto) {
-//        debugPrint("PersistedPhoto with id = \(photo.objectID) has no data. GETing it from Flickr...")
         guard let url = photo.imageURL() else { return }
         FlickrService().getPhotoData(fromURL: url, onSuccess: { [weak self] (imageData) in
             
             if let imageData = imageData {
                 self?.dataController.updatePersistedPhotoData(withObjectID: photo.objectID, data: imageData, context: .background, onSuccess: {
-//                    debugPrint("sucessfully assigned data to PersistedPhoto with id = (\(photo.objectID))")
                     
                 }, onFailure: { (persistenceError) in
                     ErrorHelper.logPersistenceError(persistenceError)
@@ -243,10 +239,8 @@ class PhotoAlbumViewController: UIViewController {
     }
     
     
-    private func getRandomPage() -> Int? {
-        guard let pages = pages, let perPage = perPage else {
-            return nil
-        }
+    private func getRandomPage() -> Int {
+        guard let pages = pages, let perPage = perPage else { return 1 }
         return Int(arc4random_uniform(UInt32(min(pages,4000/perPage)))+1)
     }
     
@@ -306,7 +300,9 @@ extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {
     
     func controller(_ controller: NSFetchedResultsController<NSFetchRequestResult>, didChange anObject: Any, at indexPath: IndexPath?, for type: NSFetchedResultsChangeType, newIndexPath: IndexPath?) {
         switch type {
-        case .delete, .update, .insert: debugPrint("\(type)") //DispatchQueue.main.async { self.collectionView.reloadData() }
+        case .delete: debugPrint("deleted")
+        case .update: debugPrint("updated")
+        case .insert: debugPrint("inserted") //DispatchQueue.main.async { self.collectionView.reloadData() }
         default: return
         }
     }

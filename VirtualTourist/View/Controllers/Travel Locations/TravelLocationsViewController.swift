@@ -132,9 +132,7 @@ class TravelLocationsViewController: UIViewController {
         
         FlickrService().searchAlbum(inCoordinate: coordinate, page: 1, onSuccess: { [weak self] (albumSearchResponse) in
             
-            DispatchQueue.main.async {
-                self?.view.isUserInteractionEnabled = false
-            }
+            DispatchQueue.main.async { self?.view.isUserInteractionEnabled = false }
             
             guard let flickrPhotos = albumSearchResponse?.photos?.photo else { return }
             
@@ -146,18 +144,14 @@ class TravelLocationsViewController: UIViewController {
                         self?.downloadBackupPhoto(photo)
                     }
                 }
-                DispatchQueue.main.async {
-                    self?.view.isUserInteractionEnabled = true
-                }
+                DispatchQueue.main.async { self?.view.isUserInteractionEnabled = true }
                 
             }, onFailure: { (persistenceError) in
-                ErrorHelper.logPersistenceError(persistenceError)
                 AlertHelper.showAlert(inController: self!, title: "No album", message: "Could not fetch an album for given pin location.", style: .default)
                 
             })
             
             }, onFailure: { (error) in
-                ErrorHelper.logServiceError(error as? ServiceError)
                 AlertHelper.showAlert(inController: self, title: "Download failed", message: "Failed to download album for current pin coordinate.", style: .default)
                 
         })

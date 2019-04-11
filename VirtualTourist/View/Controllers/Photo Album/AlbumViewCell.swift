@@ -13,6 +13,12 @@ class AlbumViewCell: UICollectionViewCell {
     
     // MARK: - IBOutlets
     
+    @IBOutlet private weak var activityIndicator: UIActivityIndicatorView! {
+        didSet {
+            activityIndicator.hidesWhenStopped = true
+            activityIndicator.startAnimating()
+        }
+    }
     @IBOutlet private weak var imageView: UIImageView!
     @IBOutlet private weak var noImageLabel: UILabel! {
         didSet {
@@ -27,10 +33,12 @@ class AlbumViewCell: UICollectionViewCell {
         
         imageView.isHidden = false
         imageView.image = UIImage(data: imageData)
+        activityIndicator.stopAnimating()
     }
     
     func configureWithNoImage() {
         noImageLabel.isHidden = false
+        activityIndicator.stopAnimating()
     }
 
     

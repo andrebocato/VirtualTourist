@@ -1,5 +1,5 @@
 //
-//  UICollectionView+EmptyView.swift
+//  UICollectionView+Extension.swift
 //  VirtualTourist
 //
 //  Created by André Sanches Bocato on 19/03/19.
@@ -10,7 +10,7 @@ import UIKit
 
 extension UICollectionView {
     
-    func showEmptyView(message: String) {
+    func showEmptyBackgroundView(message: String) {
         let noImagesLabel = UILabel(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
         noImagesLabel.text = message
         noImagesLabel.textColor = .gray
@@ -23,9 +23,20 @@ extension UICollectionView {
         }
     }
     
-    func hideEmptyView() {
+    func hideBackgroudViews() {
         DispatchQueue.main.async {
             self.backgroundView = nil
+        }
+    }
+    
+    func showLoadingBackgroundView() {
+        let activityIndicator = UIActivityIndicatorView(frame: CGRect(x: 0, y: 0, width: self.bounds.size.width, height: self.bounds.size.height))
+        activityIndicator.style = UIActivityIndicatorView.Style.whiteLarge
+        activityIndicator.color = .black
+        activityIndicator.sizeToFit()
+        
+        DispatchQueue.main.async {
+            self.backgroundView = activityIndicator
         }
     }
     

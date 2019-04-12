@@ -19,6 +19,7 @@ class PhotoAlbumViewController: UIViewController {
         didSet {
             collectionView.delegate = self
             collectionView.dataSource = self
+            collectionView.showLoadingBackgroundView()
         }
     }
     @IBOutlet private weak var mapView: MKMapView! {
@@ -78,6 +79,7 @@ class PhotoAlbumViewController: UIViewController {
     
     private func loadViewData() {
         configureNSFetchedResultsController(with: mapPin)
+        
         guard let pinPhotos = mapPin.photos, pinPhotos.count > 0 else {
             downloadAlbumForPin(mapPin, page: getRandomPage())
             return
@@ -173,6 +175,8 @@ class PhotoAlbumViewController: UIViewController {
         
         guard let photoFromPinAlbum = fetchedResultsController?.object(at: indexPath) else { return }
         
+        collectionView.hideBackgroudViews()
+        
         if let imageData = photoFromPinAlbum.data {
             cell.configureWith(imageData)
         } else {
@@ -226,7 +230,6 @@ class PhotoAlbumViewController: UIViewController {
         })
     }
     
-    
     private func getRandomPage() -> Int {
         guard let pages = pages, let perPage = perPage else { return 1 }
         return Int(arc4random_uniform(UInt32(min(pages,4000/perPage)))+1)
@@ -242,19 +245,19 @@ extension PhotoAlbumViewController: UICollectionViewDataSource {
     
     func numberOfSections(in collectionView: UICollectionView) -> Int {
         guard let numberOfSections = fetchedResultsController?.sections?.count, numberOfSections > 0 else {
-            collectionView.showEmptyView(message: "No sections.")
+            collectionView.showEmptyBackgroundView(message: "No sections.")
             return 0
         }
-        collectionView.hideEmptyView()
+        collectionView.hideBackgroudViews()
         return numberOfSections
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         guard let numberOfItemsInSection = fetchedResultsController?.sections?[section].numberOfObjects, numberOfItemsInSection > 0 else {
-            collectionView.showEmptyView(message: "No items.")
+            collectionView.showEmptyBackgroundView(message: "No items.")
             return 0
         }
-        collectionView.hideEmptyView()
+        collectionView.hideBackgroudViews()
         return numberOfItemsInSection
     }
     
@@ -280,6 +283,24 @@ extension PhotoAlbumViewController: UICollectionViewDelegate {
         deletePhoto(withID: id, at: indexPath)
     }
     
+}
+
+extension PhotoAlbumViewController: UICollectionViewDelegateFlowLayout {
+    
+    // MARK: - Collection View Flow Layout Delegate
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, sizeForItemAt indexPath: IndexPath) -> CGSize {
+        let size = (collectionView.bounds.width/3) - 2
+        return CGSize(width: size, height: size)
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumLineSpacingForSectionAt section: Int) -> CGFloat {
+        return 2
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, layout collectionViewLayout: UICollectionViewLayout, minimumInteritemSpacingForSectionAt section: Int) -> CGFloat {
+        return 2
+    }
 }
 
 extension PhotoAlbumViewController: NSFetchedResultsControllerDelegate {

@@ -79,49 +79,40 @@
                             <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" dataMode="prototypes" translatesAutoresizingMaskIntoConstraints="NO" id="pdO-6t-5nG">
                                 <rect key="frame" x="0.0" y="187" width="375" height="436"/>
                                 <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="genericGamma22GrayColorSpace"/>
-                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="4Dd-O4-qvd">
-                                    <size key="itemSize" width="125" height="125"/>
+                                <collectionViewFlowLayout key="collectionViewLayout" minimumLineSpacing="10" minimumInteritemSpacing="10" id="Ikl-or-q3o">
+                                    <size key="itemSize" width="113" height="124"/>
                                     <size key="headerReferenceSize" width="0.0" height="0.0"/>
                                     <size key="footerReferenceSize" width="0.0" height="0.0"/>
                                     <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
                                 </collectionViewFlowLayout>
                                 <cells>
                                     <collectionViewCell opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" reuseIdentifier="AlbumViewCell" id="rC6-3Q-Wpb" customClass="AlbumViewCell" customModule="VirtualTourist" customModuleProvider="target">
-                                        <rect key="frame" x="0.0" y="0.0" width="125" height="125"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="113" height="124"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                                         <view key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" insetsLayoutMarginsFromSafeArea="NO">
-                                            <rect key="frame" x="0.0" y="0.0" width="125" height="125"/>
+                                            <rect key="frame" x="0.0" y="0.0" width="113" height="124"/>
                                             <autoresizingMask key="autoresizingMask"/>
                                             <subviews>
-                                                <label hidden="YES" opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="No Image." textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wqY-sP-2oo" userLabel="No Image Label">
-                                                    <rect key="frame" x="23.5" y="52" width="78" height="21"/>
-                                                    <fontDescription key="fontDescription" type="system" pointSize="17"/>
-                                                    <nil key="textColor"/>
-                                                    <nil key="highlightedColor"/>
-                                                </label>
-                                                <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFit" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="kwU-Ie-QEV">
-                                                    <rect key="frame" x="0.0" y="0.0" width="125" height="125"/>
+                                                <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="kwU-Ie-QEV">
+                                                    <rect key="frame" x="0.0" y="0.0" width="113" height="124"/>
                                                 </imageView>
                                                 <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Eza-xd-coW" userLabel="Activity Indicator">
-                                                    <rect key="frame" x="44" y="44" width="37" height="37"/>
+                                                    <rect key="frame" x="38" y="43.5" width="37" height="37"/>
                                                     <color key="color" white="0.0" alpha="1" colorSpace="calibratedWhite"/>
                                                 </activityIndicatorView>
                                             </subviews>
                                         </view>
                                         <constraints>
-                                            <constraint firstItem="Eza-xd-coW" firstAttribute="centerX" secondItem="rC6-3Q-Wpb" secondAttribute="centerX" id="2aH-d4-T3U"/>
-                                            <constraint firstItem="kwU-Ie-QEV" firstAttribute="leading" secondItem="rC6-3Q-Wpb" secondAttribute="leading" id="9d3-bs-sW9"/>
-                                            <constraint firstAttribute="bottom" secondItem="kwU-Ie-QEV" secondAttribute="bottom" id="Rz1-e8-3Ti"/>
-                                            <constraint firstItem="wqY-sP-2oo" firstAttribute="centerY" secondItem="rC6-3Q-Wpb" secondAttribute="centerY" id="bA8-b4-FY2"/>
-                                            <constraint firstAttribute="trailing" secondItem="kwU-Ie-QEV" secondAttribute="trailing" id="hfa-9e-KtC"/>
-                                            <constraint firstItem="wqY-sP-2oo" firstAttribute="centerX" secondItem="rC6-3Q-Wpb" secondAttribute="centerX" id="jOQ-Mb-3wh"/>
-                                            <constraint firstItem="Eza-xd-coW" firstAttribute="centerY" secondItem="rC6-3Q-Wpb" secondAttribute="centerY" id="nTq-a2-plS"/>
-                                            <constraint firstItem="kwU-Ie-QEV" firstAttribute="top" secondItem="rC6-3Q-Wpb" secondAttribute="top" id="rPc-cO-Q8x"/>
+                                            <constraint firstItem="Eza-xd-coW" firstAttribute="centerY" secondItem="rC6-3Q-Wpb" secondAttribute="centerY" id="TKu-l3-I26"/>
+                                            <constraint firstAttribute="bottom" secondItem="kwU-Ie-QEV" secondAttribute="bottom" id="aCF-gf-PXw"/>
+                                            <constraint firstItem="kwU-Ie-QEV" firstAttribute="top" secondItem="rC6-3Q-Wpb" secondAttribute="top" id="dvr-s4-0e4"/>
+                                            <constraint firstItem="kwU-Ie-QEV" firstAttribute="leading" secondItem="rC6-3Q-Wpb" secondAttribute="leading" id="eat-F3-fMg"/>
+                                            <constraint firstItem="Eza-xd-coW" firstAttribute="centerX" secondItem="rC6-3Q-Wpb" secondAttribute="centerX" id="qlP-yV-sC7"/>
+                                            <constraint firstAttribute="trailing" secondItem="kwU-Ie-QEV" secondAttribute="trailing" id="tpm-zJ-4oN"/>
                                         </constraints>
                                         <connections>
                                             <outlet property="activityIndicator" destination="Eza-xd-coW" id="D53-4x-Ou7"/>
                                             <outlet property="imageView" destination="kwU-Ie-QEV" id="J8c-Xj-SpT"/>
-                                            <outlet property="noImageLabel" destination="wqY-sP-2oo" id="O7G-jo-7Mx"/>
                                         </connections>
                                     </collectionViewCell>
                                 </cells>
@@ -150,7 +141,7 @@
                 </viewController>
                 <placeholder placeholderIdentifier="IBFirstResponder" id="dzQ-9k-FBx" userLabel="First Responder" sceneMemberID="firstResponder"/>
             </objects>
-            <point key="canvasLocation" x="2505" y="26"/>
+            <point key="canvasLocation" x="2504.8000000000002" y="25.637181409295355"/>
         </scene>
         <!--Navigation Controller-->
         <scene sceneID="9hC-CR-iTH">

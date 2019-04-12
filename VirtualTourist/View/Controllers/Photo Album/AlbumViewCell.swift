@@ -20,27 +20,17 @@ class AlbumViewCell: UICollectionViewCell {
         }
     }
     @IBOutlet private weak var imageView: UIImageView!
-    @IBOutlet private weak var noImageLabel: UILabel! {
-        didSet {
-            noImageLabel.text = "No image."
-        }
-    }
     
     // MARK: - Functions
     
     func configureWith(_ imageData: Data) {
-        noImageLabel?.isHidden = true
-        
         imageView.isHidden = false
         imageView.image = UIImage(data: imageData)
         activityIndicator.stopAnimating()
     }
     
     func configureWithNoImage() {
-        noImageLabel.isHidden = false
         activityIndicator.stopAnimating()
     }
 
-    
-    
 }

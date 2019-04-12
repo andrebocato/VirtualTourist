@@ -19,7 +19,7 @@ class FlickrService {
                      onSuccess succeeded: @escaping ((_ albumResponse: AlbumSearchResponse?) -> Void),
                      onFailure failed: ((Error?) -> Void)? = nil,
                      onCompletion completed: (() -> Void)? = nil) {
-    
+        
         let urlString = createUrl(with: coordinate, page: page)
         let url = URL(string: urlString)
         
@@ -40,15 +40,15 @@ class FlickrService {
         }) {
             completed?()
         }
-
+        
         
     }
     
     /// GETs a photo's data from a given URL.
     func getPhotoData(fromURL url: String,
-                  onSuccess succeeded: @escaping ((_ imageData: Data?) -> Void),
-                  onFailure failed: ((Error?) -> Void)? = nil,
-                  onCompletion completed: (() -> Void)? = nil) {
+                      onSuccess succeeded: @escaping ((_ imageData: Data?) -> Void),
+                      onFailure failed: ((Error?) -> Void)? = nil,
+                      onCompletion completed: (() -> Void)? = nil) {
         
         let url = URL(string: url)
         
@@ -62,7 +62,7 @@ class FlickrService {
         
         task.resume()
     }
-
+    
     // MARK: - Helper Functions
     
     private func createUrl(with coordinate: CLLocationCoordinate2D? = nil,

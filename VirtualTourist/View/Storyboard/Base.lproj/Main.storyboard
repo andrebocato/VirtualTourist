@@ -95,6 +95,7 @@
                                             <subviews>
                                                 <imageView hidden="YES" clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="kwU-Ie-QEV">
                                                     <rect key="frame" x="0.0" y="0.0" width="113" height="124"/>
+                                                    <color key="backgroundColor" red="0.54901960780000003" green="0.55294117649999996" blue="0.5568627451" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                                                 </imageView>
                                                 <activityIndicatorView opaque="NO" contentMode="scaleToFill" horizontalHuggingPriority="750" verticalHuggingPriority="750" style="whiteLarge" translatesAutoresizingMaskIntoConstraints="NO" id="Eza-xd-coW" userLabel="Activity Indicator">
                                                     <rect key="frame" x="38" y="43.5" width="37" height="37"/>

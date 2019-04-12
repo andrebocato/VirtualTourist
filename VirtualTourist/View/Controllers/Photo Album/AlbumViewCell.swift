@@ -21,7 +21,15 @@ class AlbumViewCell: UICollectionViewCell {
     }
     @IBOutlet private weak var imageView: UIImageView!
     
-    // MARK: - Functions
+    // MARK; - Lifecycle
+    
+    override func prepareForReuse() {
+        super.prepareForReuse()
+        imageView.image = UIImage()
+        activityIndicator.startAnimating()
+    }
+    
+    // MARK: - Configuration Functions
     
     func configureWith(_ imageData: Data) {
         imageView.isHidden = false

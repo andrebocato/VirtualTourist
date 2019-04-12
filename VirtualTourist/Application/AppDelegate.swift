@@ -17,7 +17,7 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
     var window: UIWindow?
     let dataController = DataController(modelName: "VirtualTourist")
 
-    // MARK: - Life Cycle
+    // MARK: - Lifecycle
     
     func application(_ application: UIApplication, didFinishLaunchingWithOptions launchOptions: [UIApplication.LaunchOptionsKey: Any]?) -> Bool {
         dataController.load()
@@ -29,18 +29,9 @@ class AppDelegate: UIResponder, UIApplicationDelegate {
         return true
     }
 
-//    func applicationWillResignActive(_ application: UIApplication) {
-//    }
-
-//    func applicationDidEnterBackground(_ application: UIApplication) {
-//    }
-
     func applicationWillEnterForeground(_ application: UIApplication) {
         saveContext()
     }
-
-//    func applicationDidBecomeActive(_ application: UIApplication) {
-//    }
 
     func applicationWillTerminate(_ application: UIApplication) {
         saveContext()

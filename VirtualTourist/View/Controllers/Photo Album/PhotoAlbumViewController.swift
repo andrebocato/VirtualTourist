@@ -49,7 +49,7 @@ class PhotoAlbumViewController: UIViewController {
         deleteAllObjectsAndReloadRandomPage()
     }
     
-    // MARK: - Life Cycle
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -138,7 +138,7 @@ class PhotoAlbumViewController: UIViewController {
                 
             }, onFailure: { (persistenceError) in
                 ErrorHelper.logPersistenceError(persistenceError)
-                AlertHelper.showAlert(inController: self!, title: "No album", message: "Could not fetch an album for given pin location.", style: .default)
+                AlertHelper.showAlert(inController: self, title: "No album", message: "Could not fetch an album for given pin location.", style: .default)
                 
             })
             
@@ -149,14 +149,14 @@ class PhotoAlbumViewController: UIViewController {
         })
     }
     
-    // MARK: - Configuration
+    // MARK: - Configuration Functions
     
     private func configureNSFetchedResultsController(with mapPin: MapPin) {
         let fetchRequest: NSFetchRequest<PersistedPhoto> = PersistedPhoto.fetchRequest()
         fetchRequest.predicate = NSPredicate(format: "mapPin == %@", mapPin)
         fetchRequest.sortDescriptors = [NSSortDescriptor(key: "creationDate", ascending: false)]
         
-        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: "photos")
+        fetchedResultsController = NSFetchedResultsController(fetchRequest: fetchRequest, managedObjectContext: dataController.viewContext, sectionNameKeyPath: nil, cacheName: nil)
         
         do {
             try fetchedResultsController?.performFetch()

@@ -21,11 +21,7 @@ class TravelLocationsViewController: UIViewController {
             mapView.isScrollEnabled = true
         }
     }
-    @IBOutlet private weak var longPressGestureRecognizer: UILongPressGestureRecognizer! {
-        didSet {
-            longPressGestureRecognizer.delegate = self
-        }
-    }
+    @IBOutlet private weak var longPressGestureRecognizer: UILongPressGestureRecognizer!
     
     // MARK: - Properties
     
@@ -34,11 +30,7 @@ class TravelLocationsViewController: UIViewController {
     private var currentAnnotation: MKAnnotation?
     private var annotations: [MKAnnotation]?
     
-    var fetchedResultsController: NSFetchedResultsController<MapPin>? {
-        didSet {
-            fetchedResultsController?.delegate = self
-        }
-    }
+    var fetchedResultsController: NSFetchedResultsController<MapPin>?
     var dataController: DataController!
     
     // MARK: - IBActions
@@ -51,7 +43,7 @@ class TravelLocationsViewController: UIViewController {
         }
     }
     
-    // MARK: - Life Cycle
+    // MARK: - Lifecycle
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -89,10 +81,13 @@ class TravelLocationsViewController: UIViewController {
     
     private func loadMapData() {
         dataController.fetchAllPins(inContext: .view, onSuccess: { [weak self] (mapPinsArray) in
-            guard let mapPins = mapPinsArray, let annotations = self?.convertMapPinsToAnnotations(mapPins), annotations.count > 0 else { return }
+            guard let mapPins = mapPinsArray,
+                let annotations = self?.convertMapPinsToAnnotations(mapPins),
+                annotations.count > 0,
+                let mapView = self?.mapView else { return }
             
             DispatchQueue.main.async {
-                self?.configureMapView(self!.mapView, with: annotations)
+                self?.configureMapView(mapView, with: annotations)
             }
             
             }, onFailure: { (persistenceError) in
@@ -148,7 +143,7 @@ class TravelLocationsViewController: UIViewController {
                 DispatchQueue.main.async { self?.view.isUserInteractionEnabled = true }
                 
             }, onFailure: { (persistenceError) in
-                AlertHelper.showAlert(inController: self!, title: "No album", message: "Could not fetch an album for given pin location.", style: .default)
+                AlertHelper.showAlert(inController: self, title: "No album", message: "Could not fetch an album for given pin location.", style: .default)
                 
             })
             
@@ -177,7 +172,7 @@ class TravelLocationsViewController: UIViewController {
         })
     }
     
-    // MARK: - Configuration
+    // MARK: - Configuration Functions
     
     private func configureNSFetchedResultsController() {
         let fetchRequest: NSFetchRequest<MapPin> = MapPin.fetchRequest()
@@ -265,10 +260,4 @@ extension TravelLocationsViewController: MKMapViewDelegate {
         })
     }
     
-}
-
-extension TravelLocationsViewController: UIGestureRecognizerDelegate {
-}
-
-extension TravelLocationsViewController: NSFetchedResultsControllerDelegate {
 }

@@ -173,6 +173,7 @@
 				6594B006223C1FEF00FA2DC2 /* AppDelegate.swift */,
 				6594B010223C200600FA2DC2 /* Assets.xcassets */,
 				6594B012223C200600FA2DC2 /* LaunchScreen.storyboard */,
+				6594B015223C200600FA2DC2 /* Info.plist */,
 			);
 			path = Application;
 			sourceTree = "<group>";
@@ -286,7 +287,6 @@
 				65115436223C220D0039B61E /* Model */,
 				65115435223C22080039B61E /* View */,
 				65115437223C220F0039B61E /* Convenience */,
-				6594B015223C200600FA2DC2 /* Info.plist */,
 			);
 			path = VirtualTourist;
 			sourceTree = "<group>";
@@ -701,7 +701,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Q6D8LQAG8B;
-				INFOPLIST_FILE = VirtualTourist/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/VirtualTourist/Application/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -719,7 +719,7 @@
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				CODE_SIGN_STYLE = Automatic;
 				DEVELOPMENT_TEAM = Q6D8LQAG8B;
-				INFOPLIST_FILE = VirtualTourist/Info.plist;
+				INFOPLIST_FILE = "$(SRCROOT)/VirtualTourist/Application/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
